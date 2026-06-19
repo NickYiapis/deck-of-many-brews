@@ -26,3 +26,6 @@ Important testing notes:
 - iOS installation is manual through Safari: Share → Add to Home Screen.
 - Android/Chrome should show install support once served over HTTPS.
 
+
+## v121-pwa.2
+Safe service-worker refresh/offline fallback fix. Preserves localStorage data.
