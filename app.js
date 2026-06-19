@@ -15284,10 +15284,248 @@ document.head.append(V81_STYLE);
 })();
 
 
+/* ===== Deck of Many Brews v123: corrected War filters/cards + condition name colors ===== */
+(function(){
+  'use strict';
+  const V = 'v123';
+  window.HOMEBREW_COMPENDIUM_VERSION = V;
+  function h(value){ return typeof escapeHTML === 'function' ? escapeHTML(value) : String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+  function roman(value){ return Number(value) === 1 ? 'I' : Number(value) === 2 ? 'II' : 'III'; }
+  function ensureWarFilterState(){
+    try {
+      state.warContentMode = ['all','paths','tactics'].includes(state.warContentMode) ? state.warContentMode : 'all';
+      if (!Array.isArray(state.warTierFilters)) state.warTierFilters = ['1','2','3'];
+      state.warTierFilters = [...new Set(state.warTierFilters.map(String).filter(v => ['1','2','3'].includes(v)))];
+      if (!state.warTierFilters.length) state.warTierFilters = [];
+    } catch (_) {}
+  }
+  function tierPasses(tactic){
+    ensureWarFilterState();
+    const tiers = new Set((state.warTierFilters || []).map(String));
+    return tiers.has(String(tactic?.tier));
+  }
+  function typePasses(tactic){
+    if (typeof tacticMatchesFilters !== 'function') return true;
+    const wasSelected = selectedOnlyFilter;
+    const wasFav = tacticFavoritesOnly;
+    // Keep Chosen/Favorites behavior, but category matching is handled by activeFilters here.
+    if (wasFav && typeof isFavorite === 'function' && !isFavorite('tactic', tactic.id)) return false;
+    if (wasSelected && !state.selected.includes(tactic.id)) return false;
+    if (!activeFilters || activeFilters.size === 0) return true;
+    return (tacticCategories[tactic.id] || []).some(tag => activeFilters.has(tag));
+  }
+  function tacticVisible(tactic, query){
+    return !!tactic && tierPasses(tactic) && typePasses(tactic) && (typeof tacticMatchesSearch !== 'function' || tacticMatchesSearch(tactic, query));
+  }
+  const style = document.createElement('style');
+  style.textContent = `
+    #warTacticsPage .category-filters{display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:8px!important;margin:8px 0 12px!important;overflow:visible!important;}
+    #warTacticsPage .deck-war-filter-bar{display:none!important;}
+    .deck-v123-war-filter-panel{display:grid;gap:8px;width:100%;padding:10px;border:1px solid rgba(255,255,255,.12);border-radius:18px;background:linear-gradient(145deg,rgba(12,13,26,.72),rgba(18,13,29,.56));box-shadow:inset 0 1px 0 rgba(255,255,255,.055),0 10px 28px rgba(0,0,0,.16);}
+    .deck-v123-filter-row{display:flex;gap:7px;flex-wrap:wrap;align-items:center;}
+    .deck-v123-filter-label{flex:0 0 70px;font-size:.68rem;font-weight:950;letter-spacing:.11em;text-transform:uppercase;color:rgba(126,215,255,.80);}
+    .deck-v123-chip{min-height:33px;border-radius:999px;border:1px solid rgba(255,255,255,.13);background:rgba(255,255,255,.055);color:#eee8ff;font-size:.73rem;font-weight:950;padding:7px 10px;cursor:pointer;white-space:nowrap;}
+    .deck-v123-chip:hover{border-color:rgba(255,215,137,.42);}
+    .deck-v123-chip.is-active{border-color:rgba(255,215,137,.64);color:#fff0c7;background:linear-gradient(135deg,rgba(255,215,137,.20),rgba(126,215,255,.10));box-shadow:0 0 0 1px rgba(255,215,137,.13) inset,0 0 15px rgba(255,215,137,.06);}
+    #warTacticsPage .paths-list{display:grid!important;gap:14px!important;overflow:visible!important;}
+    #warTacticsPage .path-row.deck-v123-path-row{display:grid!important;gap:8px!important;max-width:100%!important;overflow:visible!important;padding:10px!important;border-radius:20px!important;background:linear-gradient(145deg,rgba(255,255,255,.045),rgba(126,215,255,.025))!important;border:1px solid rgba(255,255,255,.08)!important;}
+    #warTacticsPage .deck-v123-path-head{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:0 2px 2px;}
+    #warTacticsPage .deck-v123-path-head strong{font-size:.86rem;color:#fff2ca;letter-spacing:.025em;}
+    #warTacticsPage .deck-v123-path-head span{font-size:.68rem;color:rgba(238,232,255,.58);font-weight:850;text-transform:uppercase;letter-spacing:.08em;}
+    #warTacticsPage .deck-v123-path-cards{display:flex!important;gap:10px!important;overflow-x:auto!important;overflow-y:hidden!important;scroll-snap-type:x proximity;padding:2px 2px 8px;scrollbar-width:thin;}
+    #warTacticsPage .path-slot{flex:0 0 clamp(235px,26vw,292px)!important;min-width:235px!important;scroll-snap-align:start!important;display:block!important;}
+    #warTacticsPage .path-slot .card{height:100%!important;min-height:0!important;}
+    #warTacticsPage .path-title,#warTacticsPage .path-title__icon{display:none!important;}
+    #warTacticsPage .path-slot:not(:last-child)::before,#warTacticsPage .path-slot:not(:last-child)::after{display:none!important;content:none!important;}
+    #warTacticsPage .empty-slot{display:none!important;}
+    #warTacticsPage .tier-rail{display:none!important;}
+    #warTacticsPage .tactic-tags,#warTacticsPage .card__action-tags{display:none!important;}
+    #warTacticsPage .standalone-grid{overflow-x:auto!important;scrollbar-width:thin;}
+    #warTacticsPage .card{max-width:100%!important;}
+    #mobileSectionMenuV109 .deck-v123-war-menu{display:grid;gap:10px;}
+    #mobileSectionMenuV109 .deck-v123-war-menu .v109-menu-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;}
+    #mobileSectionMenuV109 .deck-v123-war-menu .v109-menu-grid--types{grid-template-columns:repeat(2,minmax(0,1fr))!important;}
+    #mobileSectionMenuV109 .deck-v123-war-menu .v109-menu-option{min-height:38px!important;padding:7px 6px!important;border-radius:12px!important;}
+    #mobileSectionMenuV109 .deck-v123-war-menu .v109-menu-option small{display:none!important;}
+    .condition-card--bleeding .condition-card__header h4{color:#ff8e9b!important;text-shadow:0 0 14px rgba(210,56,70,.26)!important;}
+    .condition-card--burning .condition-card__header h4{color:#ffb26a!important;text-shadow:0 0 14px rgba(255,112,64,.27)!important;}
+    .condition-card--soaked .condition-card__header h4,.condition-card--chilled .condition-card__header h4,.condition-card--frozen .condition-card__header h4{color:#8fdcff!important;text-shadow:0 0 14px rgba(126,215,255,.26)!important;}
+    .condition-card--corroded .condition-card__header h4{color:#a8ef73!important;text-shadow:0 0 14px rgba(141,217,71,.24)!important;}
+    .condition-card--feebleminded .condition-card__header h4{color:#eba2ff!important;text-shadow:0 0 14px rgba(219,93,209,.24)!important;}
+    .condition-card--sapped .condition-card__header h4{color:#9df5ce!important;text-shadow:0 0 14px rgba(13,171,118,.23)!important;}
+    @media (max-width: 720px){#warTacticsPage .path-slot{flex-basis:min(78vw,292px)!important;min-width:min(78vw,292px)!important}.deck-v123-filter-label{flex:0 0 100%;}.deck-v123-chip{font-size:.70rem;padding:7px 9px}}
+  `;
+  document.head.appendChild(style);
+
+  renderCategoryFilters = function(){
+    ensureWarFilterState();
+    if (!els?.categoryFilters) return;
+    els.categoryFilters.innerHTML = '';
+    const panel = document.createElement('div');
+    panel.className = 'deck-v123-war-filter-panel';
+    const activeTiers = new Set((state.warTierFilters || []).map(String));
+    const tierButtons = [1,2,3].map(t => `<button type="button" class="deck-v123-chip ${activeTiers.has(String(t)) ? 'is-active' : ''}" data-deck-v123-tier="${t}">Tier ${roman(t)}</button>`).join('');
+    const mode = state.warContentMode || 'all';
+    const modeButtons = ['all','paths','tactics'].map(m => `<button type="button" class="deck-v123-chip ${mode === m ? 'is-active' : ''}" data-deck-v123-mode="${m}">${m === 'all' ? 'All' : m === 'paths' ? 'Paths' : 'Tactics'}</button>`).join('');
+    const allTypesActive = !activeFilters || activeFilters.size === 0;
+    const typeButtons = [`<button type="button" class="deck-v123-chip ${allTypesActive ? 'is-active' : ''}" data-deck-v123-type="all">All Types</button>`]
+      .concat(categories.map(cat => `<button type="button" class="deck-v123-chip ${activeFilters.has(cat.id) ? 'is-active' : ''}" data-deck-v123-type="${h(cat.id)}">${h(cat.label)}</button>`)).join('');
+    const savedButtons = `<button type="button" class="deck-v123-chip ${selectedOnlyFilter ? 'is-active' : ''}" data-deck-v123-special="chosen">Chosen</button><button type="button" class="deck-v123-chip ${tacticFavoritesOnly ? 'is-active' : ''}" data-deck-v123-special="favorites">★ Favorites</button>`;
+    panel.innerHTML = `
+      <div class="deck-v123-filter-row"><span class="deck-v123-filter-label">Tiers</span>${tierButtons}</div>
+      <div class="deck-v123-filter-row"><span class="deck-v123-filter-label">Show</span>${modeButtons}</div>
+      <div class="deck-v123-filter-row"><span class="deck-v123-filter-label">Types</span>${typeButtons}</div>
+      <div class="deck-v123-filter-row"><span class="deck-v123-filter-label">Saved</span>${savedButtons}</div>
+    `;
+    els.categoryFilters.append(panel);
+  };
+
+  renderWarActiveFilters = function(){
+    const filters = [];
+    const query = els.searchInput?.value.trim();
+    if (query) filters.push({label:`Search: ${query}`, onRemove:()=>{ els.searchInput.value=''; renderTree(); }});
+    if (selectedOnlyFilter) filters.push({label:'Chosen', onRemove:()=>{ selectedOnlyFilter=false; renderCategoryFilters(); renderTree(); }});
+    if (tacticFavoritesOnly) filters.push({label:'Favorites', onRemove:()=>{ tacticFavoritesOnly=false; renderCategoryFilters(); renderTree(); }});
+    ensureWarFilterState();
+    const tiers = new Set((state.warTierFilters || []).map(String));
+    [1,2,3].forEach(t => { if (!tiers.has(String(t))) filters.push({label:`Hide Tier ${roman(t)}`, onRemove:()=>{ state.warTierFilters=[...new Set([...(state.warTierFilters||[]), String(t)])]; save(); renderCategoryFilters(); renderTree(); }}); });
+    if (state.warContentMode && state.warContentMode !== 'all') filters.push({label: state.warContentMode === 'paths' ? 'Paths' : 'Tactics', onRemove:()=>{state.warContentMode='all'; save(); renderCategoryFilters(); renderTree();}});
+    [...activeFilters].forEach(id => {
+      const category = categories.find(item => item.id === id);
+      filters.push({label: category?.label || id, onRemove:()=>{activeFilters.delete(id); renderCategoryFilters(); renderTree();}});
+    });
+    renderActiveFilterStrip(els.warActiveFilters, filters, () => {
+      if (els.searchInput) els.searchInput.value = '';
+      selectedOnlyFilter = false; tacticFavoritesOnly = false; activeFilters.clear(); state.warContentMode = 'all'; state.warTierFilters = ['1','2','3']; save(); renderCategoryFilters(); renderTree();
+    });
+  };
+
+  renderTree = function(){
+    ensureWarFilterState();
+    renderWarActiveFilters();
+    renderCategoryFilters();
+    const query = els.searchInput.value.trim().toLowerCase();
+    const mode = state.warContentMode || 'all';
+    const isFiltering = Boolean(query) || activeFilters.size > 0 || selectedOnlyFilter || tacticFavoritesOnly || (state.warTierFilters || []).length !== 3 || mode !== 'all';
+    els.tree.innerHTML = '';
+
+    if (mode !== 'tactics') {
+      const pathsSection = document.createElement('section');
+      pathsSection.className = 'tree-section paths-section';
+      pathsSection.innerHTML = `<div class="section-heading section-heading--compact"><div><h2>Paths <span class="heading-parenthetical">(Upgradable Lines)</span></h2></div></div>`;
+      const pathsList = document.createElement('div');
+      pathsList.className = 'paths-list deck-v123-paths-list';
+      let visiblePathRows = 0;
+      for (const path of pathDefinitions) {
+        const pathTactics = path.tacticIds.map(id => id ? tacticById[id] : null).filter(Boolean);
+        const visibleTactics = pathTactics.filter(tactic => tacticVisible(tactic, query));
+        if (!visibleTactics.length) continue;
+        visiblePathRows += 1;
+        const row = document.createElement('article');
+        const selectedInPath = path.tacticIds.filter(id => id && state.selected.includes(id)).length;
+        row.className = `path-row deck-v123-path-row ${selectedInPath > 0 ? 'is-active-path' : ''}`;
+        row.dataset.path = path.id;
+        const recommendedId = typeof getRecommendedPathTactic === 'function' ? getRecommendedPathTactic(path) : null;
+        const cards = document.createElement('div');
+        cards.className = 'deck-v123-path-cards';
+        for (const tactic of visibleTactics) {
+          const slot = document.createElement('div');
+          slot.className = 'path-slot';
+          slot.append(renderCard(tactic, query, {ignoreFilters:true, isRecommended:tactic.id === recommendedId}));
+          cards.append(slot);
+        }
+        row.innerHTML = `<div class="deck-v123-path-head"><strong>${h(path.label)}</strong><span>${visibleTactics.length}/${pathTactics.length} shown</span></div>`;
+        row.append(cards);
+        pathsList.append(row);
+      }
+      if (isFiltering && visiblePathRows === 0) {
+        const empty = document.createElement('div'); empty.className = 'empty-results'; empty.textContent = 'No matching paths.'; pathsList.append(empty);
+      }
+      pathsSection.append(pathsList);
+      els.tree.append(pathsSection);
+    }
+
+    if (mode !== 'paths') {
+      const tacticsSection = document.createElement('section');
+      tacticsSection.className = 'tree-section tactics-section';
+      tacticsSection.innerHTML = `<div class="section-heading section-heading--compact"><div><h2>Tactics <span class="heading-parenthetical">(Standalone Options)</span></h2></div></div>`;
+      const standaloneGrid = document.createElement('div');
+      standaloneGrid.className = 'standalone-grid';
+      for (const tier of [1,2,3]) {
+        if (!(state.warTierFilters || []).includes(String(tier))) continue;
+        const column = document.createElement('section');
+        column.className = 'standalone-column'; column.dataset.tier = String(tier);
+        const header = document.createElement('div'); header.className = 'standalone-tier-header'; header.innerHTML = `<h3>${tierInfo[tier].label}</h3><p>${tierInfo[tier].subtitle}</p>`; column.append(header);
+        const tierTactics = standaloneTactics.filter(tactic => tactic.tier === tier);
+        let visibleInTier = 0;
+        for (const tactic of tierTactics) {
+          if (!tacticVisible(tactic, query)) continue;
+          const card = renderCard(tactic, query, {ignoreFilters:true});
+          column.append(card); visibleInTier += 1;
+        }
+        if (visibleInTier === 0) { const empty = document.createElement('div'); empty.className='empty-results'; empty.textContent='No matching tactics in this tier.'; column.append(empty); }
+        standaloneGrid.append(column);
+      }
+      tacticsSection.append(standaloneGrid);
+      els.tree.append(tacticsSection);
+    }
+  };
+
+  function applyFilterClick(btn){
+    ensureWarFilterState();
+    if (btn.dataset.deckV123Tier) {
+      const t = String(btn.dataset.deckV123Tier);
+      const set = new Set((state.warTierFilters || []).map(String));
+      if (set.has(t)) set.delete(t); else set.add(t);
+      state.warTierFilters = [...set].sort((a,b)=>Number(a)-Number(b));
+    } else if (btn.dataset.deckV123Mode) {
+      state.warContentMode = btn.dataset.deckV123Mode;
+    } else if (btn.dataset.deckV123Type) {
+      const type = btn.dataset.deckV123Type;
+      if (type === 'all') activeFilters.clear();
+      else if (activeFilters.has(type)) activeFilters.delete(type); else activeFilters.add(type);
+    } else if (btn.dataset.deckV123Special === 'chosen') {
+      selectedOnlyFilter = !selectedOnlyFilter;
+    } else if (btn.dataset.deckV123Special === 'favorites') {
+      tacticFavoritesOnly = !tacticFavoritesOnly;
+    }
+    save(); renderCategoryFilters(); renderTree();
+  }
+  document.addEventListener('click', event => {
+    const btn = event.target.closest?.('[data-deck-v123-tier],[data-deck-v123-mode],[data-deck-v123-type],[data-deck-v123-special]');
+    if (!btn) return;
+    event.preventDefault(); event.stopPropagation(); if (event.stopImmediatePropagation) event.stopImmediatePropagation();
+    applyFilterClick(btn);
+    const menu = document.getElementById('mobileSectionMenuV109');
+    if (menu?.classList.contains('is-open')) setTimeout(renderWarMobileMenuV123, 0);
+  }, true);
+
+  function option(label, attrs, active){ return `<button type="button" class="v109-menu-option ${active?'is-active':''}" ${attrs}><span>${h(label)}</span></button>`; }
+  function group(title, html, extra=''){ return `<div class="v109-menu-group"><div class="v109-menu-group__title">${h(title)}</div><div class="v109-menu-grid ${extra}">${html}</div></div>`; }
+  function currentPage(){ try { return activePage || document.body.dataset.v109Page || ''; } catch(_) { return document.body.dataset.v109Page || ''; } }
+  function renderWarMobileMenuV123(){
+    ensureWarFilterState();
+    const menu = document.getElementById('mobileSectionMenuV109');
+    const content = menu?.querySelector('.v109-mobile-menu__content');
+    if (!content || !menu.classList.contains('is-open') || currentPage() !== 'war') return;
+    const tiers = new Set((state.warTierFilters || []).map(String));
+    const mode = state.warContentMode || 'all';
+    const tierHtml = group('Tiers', [1,2,3].map(t => option(`Tier ${roman(t)}`, `data-deck-v123-tier="${t}"`, tiers.has(String(t)))).join(''));
+    const showHtml = group('Show', ['all','paths','tactics'].map(m => option(m === 'all' ? 'All' : m === 'paths' ? 'Paths' : 'Tactics', `data-deck-v123-mode="${m}"`, mode === m)).join(''));
+    const typeHtml = group('Types', [`<button type="button" class="v109-menu-option ${activeFilters.size===0?'is-active':''}" data-deck-v123-type="all"><span>All Types</span></button>`].concat(categories.map(cat => option(cat.label, `data-deck-v123-type="${h(cat.id)}"`, activeFilters.has(cat.id)))).join(''), 'v109-menu-grid--types');
+    content.innerHTML = `<div class="deck-v123-war-menu">${tierHtml}${showHtml}${typeHtml}</div>`;
+  }
+  document.addEventListener('click', e => { if (e.target.closest?.('.v109-mobile-menu__button,#navWarTactics,#topPageMenu button,.top-page-picker__option')) setTimeout(renderWarMobileMenuV123, 80); }, true);
+  setInterval(() => { const m = document.getElementById('mobileSectionMenuV109'); if (m?.classList.contains('is-open') && currentPage() === 'war') renderWarMobileMenuV123(); }, 500);
+
+  const boot = () => { try { ensureWarFilterState(); renderCategoryFilters(); if ((activePage || document.body.dataset.v109Page) === 'war') renderTree(); } catch(err){ console.error('Deck v123 patch failed', err); } };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => setTimeout(boot,0)); else setTimeout(boot,0);
+})();
+
 /* ===== PWA runtime: version checks, prompt-based updates, and data migrations ===== */
 (function() {
   'use strict';
-  const CURRENT_VERSION = 'v122';
+  const CURRENT_VERSION = 'v123';
   const DATA_VERSION = 1;
   const DATA_VERSION_KEY = 'homebrewCompendium.appDataVersion';
   window.HOMEBREW_COMPENDIUM_VERSION = CURRENT_VERSION;

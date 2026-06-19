@@ -1,7 +1,7 @@
 {
-  "version": "v122",
+  "version": "v123",
   "dataVersion": 1,
   "releasedAt": "2026-06-19T00:00:00+03:00",
   "updatePolicy": "prompt",
-  "notes": "War Tactics filters/cards, Gear tools page, Weapon tools modal, and scroll stability fixes. LocalStorage keys are preserved."
+  "notes": "Corrected War Tactics filters/cards, restored type filtering, kept filter menus open, condition name color polish, and preserved v122 tools changes."
 }
