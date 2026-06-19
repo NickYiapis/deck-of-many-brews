@@ -25,3 +25,4 @@ Important testing notes:
 - Offline mode works after the first successful online load.
 - iOS installation is manual through Safari: Share → Add to Home Screen.
 - Android/Chrome should show install support once served over HTTPS.
+
