@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1, viewport-fit=cover" name="viewport"/>
+<meta content="#151824" name="theme-color"/>
+<meta content="Single-file Homebrew Compendium for D&amp;D campaign rules, tactics, spells, gear, weapons, conditions, and character creation." name="description"/>
+<title>Homebrew Compendium</title>
+<meta content="D&amp;D Homebrew Compendium" name="application-name"/><meta content="yes" name="mobile-web-app-capable"/><meta content="yes" name="apple-mobile-web-app-capable"/><meta content="Homebrew" name="apple-mobile-web-app-title"/><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/><meta content="telephone=no" name="format-detection"/><link href="manifest.webmanifest" rel="manifest"/><link href="icons/icon-192.png" rel="icon" sizes="192x192" type="image/png"/><link href="icons/icon-192.png" rel="apple-touch-icon" sizes="192x192"/><link href="app.css" rel="stylesheet"/><meta content="v121-pwa.1" name="app-version"/></head>
+<body>
+<div class="app-shell">
+<header class="hero">
+<div class="hero__content">
+<p class="eyebrow">D&amp;D HOMEBREW COMPENDIUM</p>
+<h1 id="pageTitle">War Tactics</h1>
+<p class="hero__text"></p>
+</div>
+<div class="hero__actions">
+<div class="top-action-row top-action-row--nav">
+<button aria-label="Open global search" class="button button--ghost global-search-button" id="globalSearchButton" title="Global Search" type="button">
+<svg aria-hidden="true" viewbox="0 0 24 24"><circle cx="10.8" cy="10.8" r="5.9"></circle><path d="M15.3 15.3 20 20"></path></svg>
+</button>
+<button aria-label="Home" class="button button--ghost home-button" id="homeButton" title="Home" type="button">
+<svg aria-hidden="true" viewbox="0 0 24 24"><path d="M4 11.2 12 4l8 7.2"></path><path d="M6.6 10.4V20h10.8v-9.6"></path><path d="M10 20v-5.2h4V20"></path></svg>
+</button>
+</div>
+<div class="top-action-row top-action-row--data">
+<button class="button button--ghost global-export-button" id="globalExportButton" type="button">Export All</button>
+<label class="button button--ghost global-import-button" for="globalImportInput" id="globalImportButton" role="button" tabindex="0">Import</label>
+<input accept="application/json,.json" class="visually-hidden" id="globalImportInput" type="file"/>
+</div>
+<div class="top-action-row top-action-row--mode">
+<button class="button button--ghost page-dm-mode-button hidden" id="pageDmModeButton" type="button">DM Mode</button>
+<button class="button button--ghost" id="iosHelpButton" type="button">Install Help</button>
+</div>
+<div class="top-page-picker multi-picker hidden" id="topPagePicker">
+<button aria-expanded="false" aria-haspopup="listbox" class="multi-picker__button top-page-picker__button" id="topPageButton" type="button">
+<span>
+<strong id="topPageLabel">War Tactics</strong>
+<small>Change page</small>
+</span>
+<i aria-hidden="true">⌄</i>
+</button>
+<div aria-label="Change page" class="multi-picker__menu top-page-picker__menu" id="topPageMenu" role="listbox"></div>
+</div>
+</div>
+</header>
+<section aria-label="Home page introduction" class="home-intro panel">
+<p class="eyebrow">MASTER HOME</p>
+<h2>Choose a Compendium Section</h2>
+<p>Open the rules module you need. Each section keeps its own filters, DM tools, and saved local edits.</p>
+</section>
+<section aria-label="Global compendium search" class="home-search-panel panel">
+<p class="home-search-title">Global Search</p>
+<div class="home-search-row">
+<label class="search-field home-global-search">
+<input id="homeGlobalSearchInput" placeholder="Search tactics, spells, gear, weapons, and conditions..." type="search"/>
+</label>
+<button class="button button--ghost favorite-filter-button home-favorites-toggle" id="homeFavoritesToggle" title="Show favorites only" type="button">★ Favorites</button>
+</div>
+<div aria-label="Active home filters" class="active-filter-strip" id="homeActiveFilters"></div>
+<div aria-live="polite" class="home-search-results" id="homeSearchResults"></div>
+</section>
+<nav aria-label="Homebrew sections" class="master-menu panel master-menu--home">
+<button class="master-menu__item master-menu__item--war is-active" id="navWarTactics" type="button">
+<span class="master-menu__icon">⚔</span>
+<span>
+<strong>War Tactics</strong>
+<small>Skill tree and martial build tracker</small>
+</span>
+</button>
+<button class="master-menu__item master-menu__item--spells" id="navSpells" type="button">
+<span class="master-menu__icon">✦</span>
+<span>
+<strong>Spells Rebalanced</strong>
+<small>Spell revisions by level, school, and rules change</small>
+</span>
+</button>
+<button class="master-menu__item master-menu__item--conditions" id="navConditions" type="button">
+<span class="master-menu__icon">◈</span>
+<span>
+<strong>Conditions Expanded</strong>
+<small>Expanded combat states and condition rules</small>
+</span>
+</button>
+<button class="master-menu__item master-menu__item--gear" id="navGear" type="button">
+<span class="master-menu__icon">◆</span>
+<span>
+<strong>Upgraded Gear</strong>
+<small>Upgrade rules, armor reinforcements, and weapon refinements</small>
+</span>
+</button>
+<button class="master-menu__item master-menu__item--weapons" id="navWeapons" type="button">
+<span class="master-menu__icon">🗡</span>
+<span>
+<strong>Weapons Expanded</strong>
+<small>Expanded weapon lists, properties, and specialty options</small>
+</span>
+</button>
+<button class="master-menu__item master-menu__item--character" id="navCharacter" type="button">
+<span class="master-menu__icon">◎</span>
+<span>
+<strong>Character Creator</strong>
+<small>2024-style character sheet, stats, saves, skills, combat, spells, and notes</small>
+</span>
+</button>
+</nav>
+<section class="site-page page-theme page-theme--war" id="warTacticsPage">
+<main class="layout">
+<aside aria-label="Character controls" class="panel controls">
+<section>
+<h2>Character Setup</h2>
+<label class="field field--level">
+<span>Martial Class Level</span>
+<div class="level-picker" id="levelPicker">
+<select aria-hidden="true" class="visually-hidden" id="levelSelect" tabindex="-1"></select>
+<button aria-controls="levelPickerMenu" aria-expanded="false" aria-haspopup="listbox" class="level-picker__button" id="levelPickerButton" type="button">
+<span class="level-picker__content">
+<strong id="levelPickerLabel">6th level</strong>
+<small id="levelPickerMeta">Tier I unlocked · 2 Tier I picks</small>
+</span>
+<span aria-hidden="true" class="level-picker__chevron">▾</span>
+</button>
+<div aria-label="Martial Class Level" class="level-picker__menu" id="levelPickerMenu" role="listbox"></div>
+</div>
+</label>
+<div class="build-slots">
+<div class="field">
+<span>Character Build Slot</span>
+<div class="build-slot-picker" id="buildSlotPicker">
+<button aria-expanded="false" aria-haspopup="listbox" class="build-slot-picker__button" id="buildSlotButton" type="button">
+<span>
+<strong id="buildSlotLabel">Slot 1</strong>
+<small id="buildSlotMeta">Current build</small>
+</span>
+<i aria-hidden="true">⌄</i>
+</button>
+<div aria-label="Character build slots" class="build-slot-picker__menu" id="buildSlotMenu" role="listbox"></div>
+<select aria-hidden="true" class="visually-hidden" id="buildSlotSelect" tabindex="-1"></select>
+</div>
+</div>
+<label class="field">
+<span>Build Name</span>
+<input id="buildNameInput" maxlength="40" placeholder="Unnamed warrior" type="text"/>
+</label>
+<div class="mini-button-grid">
+<button class="button" id="saveSlotButton" type="button">Save Slot</button>
+<button class="button button--danger" id="deleteSlotButton" type="button">Clear Slot</button>
+</div>
+</div>
+</section>
+<section>
+<h2>Selected Tactics</h2>
+<div class="summary" id="summary"></div>
+<div class="transfer-row">
+<div class="export-menu" id="exportMenu">
+<button aria-expanded="false" aria-haspopup="menu" class="button export-menu__button" id="exportMenuButton" type="button">Export ▾</button>
+<div class="export-menu__list" id="exportMenuList" role="menu">
+<button id="exportButton" role="menuitem" type="button">Export JSON</button>
+<button id="exportCodeButton" role="menuitem" type="button">Export Build Code</button>
+<button id="exportImageButton" role="menuitem" type="button">Export Image</button>
+<button id="printPdfButton" role="menuitem" type="button">Print / PDF</button>
+</div>
+</div>
+<label class="button file-button" for="importInput">Import</label>
+<input accept="application/json,.json" class="visually-hidden" id="importInput" type="file"/>
+</div>
+<button class="button button--danger reset-slot-button" id="resetButton" type="button">Reset Current Slot</button>
+</section>
+<section>
+<h2>Tactics Progress</h2>
+<table class="progress-table">
+<thead>
+<tr><th>Level</th><th>Tier</th><th>Amount</th></tr>
+</thead>
+<tbody>
+<tr><td>6th</td><td>I</td><td>2</td></tr>
+<tr><td>8th</td><td>I</td><td>+1</td></tr>
+<tr><td>10th</td><td>II</td><td>2</td></tr>
+<tr><td>12th</td><td>II</td><td>+1</td></tr>
+<tr><td>14th</td><td>III</td><td>2</td></tr>
+<tr><td>16th</td><td>III</td><td>+1</td></tr>
+</tbody>
+</table>
+</section>
+</aside>
+<section aria-label="War Tactics skill tree" class="tree-area">
+<div class="toolbar panel">
+<label class="search-field search-field--war">
+<span>Search</span>
+<input id="searchInput" placeholder="Search tactics, prerequisites, text..." type="search"/>
+</label>
+<div class="toolbar-actions">
+<div aria-label="View mode" class="view-toggle">
+<button class="view-toggle__button" id="detailedViewButton" type="button">Detailed</button>
+<button class="view-toggle__button is-active" id="compactViewButton" type="button">Simple</button>
+</div>
+<div aria-label="Legend" class="legend">
+<span><i class="dot dot--available"></i>Available</span>
+<span><i class="dot dot--selected"></i>Selected</span>
+<span><i class="dot dot--locked"></i>Locked</span>
+</div>
+</div>
+<div aria-label="Category filters" class="category-filters" id="categoryFilters"></div>
+<div aria-label="Active War Tactics filters" class="active-filter-strip" id="warActiveFilters"></div>
+</div>
+<div class="tree" id="tree"></div>
+</section>
+</main>
+</section>
+<section aria-label="Spells Rebalanced" class="site-page spells-page page-theme page-theme--spells" id="spellsPage">
+<main class="spells-layout-full">
+<section aria-label="Spells Rebalanced content" class="tree-area spell-area">
+<div class="toolbar panel spells-toolbar spells-toolbar--full">
+<div aria-label="Spell filters" class="spell-control-row">
+<label class="search-field spell-search-inline">
+<span>Search</span>
+<input id="spellSearchInput" placeholder="Search spells..." type="search"/>
+</label>
+<div class="multi-picker spell-picker" id="spellLevelPicker">
+<button aria-expanded="false" aria-haspopup="listbox" class="multi-picker__button" id="spellLevelButton" type="button">
+<span>
+<strong id="spellLevelLabel">All Levels</strong>
+<small>Spell level</small>
+</span>
+<i aria-hidden="true">⌄</i>
+</button>
+<div aria-label="Spell levels" class="multi-picker__menu" id="spellLevelMenu" role="listbox"></div>
+</div>
+<div class="multi-picker spell-picker" id="spellSchoolPicker">
+<button aria-expanded="false" aria-haspopup="listbox" class="multi-picker__button" id="spellSchoolButton" type="button">
+<span>
+<strong id="spellSchoolLabel">All Schools</strong>
+<small>Magic schools</small>
+</span>
+<i aria-hidden="true">⌄</i>
+</button>
+<div aria-label="Magic schools" class="multi-picker__menu" id="spellSchoolMenu" role="listbox"></div>
+</div>
+<div class="multi-picker spell-picker" id="spellClassPicker">
+<button aria-expanded="false" aria-haspopup="listbox" class="multi-picker__button" id="spellClassButton" type="button">
+<span>
+<strong id="spellClassLabel">All Classes</strong>
+<small>Class lists</small>
+</span>
+<i aria-hidden="true">⌄</i>
+</button>
+<div aria-label="Spell class lists" class="multi-picker__menu" id="spellClassMenu" role="listbox"></div>
+</div>
+<button class="button button--ghost favorite-filter-button page-favorites-toggle" id="spellFavoritesToggle" title="Show favorite spells only" type="button">★</button>
+<button class="button button--primary spell-rules-button gear-rules-open-button" id="spellRulesButton" type="button">Rule Changes</button>
+<div class="spell-stats spell-stats--inline spell-stats-compact spell-shown-inline" id="spellStats"></div>
+</div>
+<div aria-label="Active spell filters" class="active-filter-strip" id="spellActiveFilters"></div>
+</div>
+<div class="spell-results-info" id="spellResultsInfo"></div>
+<div class="spell-cards" id="spellCards"></div>
+<div class="spell-notes spell-notes--bottom" id="spellNotes"></div>
+</section>
+</main>
+</section>
+<section aria-label="Upgraded Gear" class="site-page gear-page page-theme page-theme--gear" id="gearPage">
+<main class="spells-layout-full gear-layout">
+<section aria-label="Upgraded Gear content" class="tree-area gear-area">
+<div class="toolbar panel gear-toolbar">
+<div aria-label="Gear filters" class="gear-control-row">
+<label class="search-field gear-search-inline">
+<span>Search</span>
+<input id="gearSearchInput" placeholder="Search upgrades..." type="search"/>
+</label>
+<div class="multi-picker gear-picker" id="gearTypePicker">
+<button aria-expanded="false" aria-haspopup="listbox" class="multi-picker__button" id="gearTypeButton" type="button">
+<span>
+<strong id="gearTypeLabel">All Types</strong>
+<small>Type</small>
+</span>
+<i aria-hidden="true">⌄</i>
+</button>
+<div aria-label="Gear types" class="multi-picker__menu" id="gearTypeMenu" role="listbox"></div>
+</div>
+<div class="multi-picker gear-picker" id="gearTierPicker">
+<button aria-expanded="false" aria-haspopup="listbox" class="multi-picker__button" id="gearTierButton" type="button">
+<span>
+<strong id="gearTierLabel">All Tiers</strong>
+<small>Tier</small>
+</span>
+<i aria-hidden="true">⌄</i>
+</button>
+<div aria-label="Upgrade tiers" class="multi-picker__menu" id="gearTierMenu" role="listbox"></div>
+</div>
+<button class="button button--ghost favorite-filter-button page-favorites-toggle" id="gearFavoritesToggle" title="Show favorite upgrades only" type="button">★</button>
+</div>
+<div aria-label="Active gear filters" class="active-filter-strip" id="gearActiveFilters"></div>
+</div>
+<section aria-label="Gear page tools" class="gear-page-actions panel">
+<article class="gear-page-action-card gear-page-action-card--calculator">
+<div>
+<span>Calculator</span>
+<strong>Upgrade Calculator</strong>
+<small>Estimate cost, crafting DC, and crafting duration.</small>
+</div>
+<button class="button button--primary gear-page-action-button" id="openGearCalculatorButton" type="button">Open Calculator</button>
+</article>
+<article class="gear-page-action-card gear-page-action-card--rules">
+<div>
+<span>Rules</span>
+<strong>Upgrade Rules</strong>
+<small>Open costs, DCs, time, and crafting references.</small>
+</div>
+<button class="button button--primary gear-page-action-button" id="openGearRulesButton" type="button">Open Rules</button>
+</article>
+</section>
+<section aria-label="Gear upgrades" class="gear-section is-active" id="gearUpgradesPanel">
+<div class="spell-results-info" id="gearResultsInfo"></div>
+<div class="gear-cards" id="gearCards"></div>
+</section>
+</section>
+</main>
+</section>
+<section aria-label="Weapons Expanded" class="site-page weapons-page page-theme page-theme--weapons" id="weaponsPage">
+<main class="spells-layout-full weapons-layout">
+<section aria-label="Weapons Expanded content" class="tree-area weapons-area">
+<div class="toolbar panel weapons-toolbar weapons-toolbar--full">
+<div aria-label="Weapon filters" class="weapon-control-row">
+<label class="search-field weapon-search-inline">
+<span>Search</span>
+<input id="weaponSearchInput" placeholder="Search weapons..." type="search"/>
+</label>
+<div class="multi-picker weapon-picker" id="weaponCategoryPicker">
+<button aria-expanded="false" aria-haspopup="listbox" class="multi-picker__button" id="weaponCategoryButton" type="button">
+<span>
+<strong id="weaponCategoryLabel">All Categories</strong>
+<small>Group</small>
+</span>
+<i aria-hidden="true">⌄</i>
+</button>
+<div aria-label="Weapon categories" class="multi-picker__menu" id="weaponCategoryMenu" role="listbox"></div>
+</div>
+<div class="multi-picker weapon-picker" id="weaponTraitPicker">
+<button aria-expanded="false" aria-haspopup="listbox" class="multi-picker__button" id="weaponTraitButton" type="button">
+<span>
+<strong id="weaponTraitLabel">All Roles</strong>
+<small>Roles</small>
+</span>
+<i aria-hidden="true">⌄</i>
+</button>
+<div aria-label="Weapon abilities" class="multi-picker__menu" id="weaponTraitMenu" role="listbox"></div>
+</div>
+<div class="multi-picker weapon-picker" id="weaponDamagePicker">
+<button aria-expanded="false" aria-haspopup="listbox" class="multi-picker__button" id="weaponDamageButton" type="button">
+<span>
+<strong id="weaponDamageLabel">All Damage Types</strong>
+<small>Damage</small>
+</span>
+<i aria-hidden="true">⌄</i>
+</button>
+<div aria-label="Weapon damage types" class="multi-picker__menu" id="weaponDamageMenu" role="listbox"></div>
+</div>
+<button class="button button--ghost favorite-filter-button page-favorites-toggle" id="weaponFavoritesToggle" title="Show favorite weapons only" type="button">★</button>
+</div>
+<div aria-label="Active weapon filters" class="active-filter-strip" id="weaponActiveFilters"></div>
+</div>
+<div class="spell-stats spell-stats--inline weapon-stats-compact" id="weaponStats"></div>
+<div class="spell-results-info" id="weaponResultsInfo"></div>
+<div class="weapon-cards" id="weaponCards"></div>
+</section>
+</main>
+</section>
+<section aria-label="Conditions Expanded" class="site-page conditions-page page-theme page-theme--conditions" id="conditionsPage">
+<main class="spells-layout-full conditions-layout">
+<section aria-label="Conditions Expanded content" class="tree-area conditions-area">
+<div class="toolbar panel conditions-toolbar conditions-toolbar--full">
+<div aria-label="Condition filters" class="condition-control-row">
+<label class="search-field condition-search-inline">
+<span>Search</span>
+<input id="conditionSearchInput" placeholder="Search conditions..." type="search"/>
+</label>
+<div class="multi-picker condition-picker" id="conditionRolePicker">
+<button aria-expanded="false" aria-haspopup="listbox" class="multi-picker__button" id="conditionRoleButton" type="button">
+<span>
+<strong id="conditionRoleLabel">All Types</strong>
+<small>Types</small>
+</span>
+<i aria-hidden="true">⌄</i>
+</button>
+<div aria-label="Condition roles" class="multi-picker__menu" id="conditionRoleMenu" role="listbox"></div>
+</div>
+<div class="multi-picker condition-picker" id="conditionElementPicker">
+<button aria-expanded="false" aria-haspopup="listbox" class="multi-picker__button" id="conditionElementButton" type="button">
+<span>
+<strong id="conditionElementLabel">All Elements</strong>
+<small>Elements</small>
+</span>
+<i aria-hidden="true">⌄</i>
+</button>
+<div aria-label="Condition elements" class="multi-picker__menu" id="conditionElementMenu" role="listbox"></div>
+</div>
+<div class="multi-picker condition-picker" id="conditionMechanicPicker">
+<button aria-expanded="false" aria-haspopup="listbox" class="multi-picker__button" id="conditionMechanicButton" type="button">
+<span>
+<strong id="conditionMechanicLabel">All Rule Hooks</strong>
+<small>Rules</small>
+</span>
+<i aria-hidden="true">⌄</i>
+</button>
+<div aria-label="Condition mechanics" class="multi-picker__menu" id="conditionMechanicMenu" role="listbox"></div>
+</div>
+<button class="button button--ghost favorite-filter-button page-favorites-toggle" id="conditionFavoritesToggle" title="Show favorite conditions only" type="button">★</button>
+</div>
+<div aria-label="Active condition filters" class="active-filter-strip" id="conditionActiveFilters"></div>
+</div>
+<div class="spell-results-info" id="conditionResultsInfo"></div>
+<div class="condition-cards" id="conditionCards"></div>
+</section>
+</main>
+</section>
+<section aria-label="Character Creator" class="site-page character-page page-theme page-theme--character" id="characterPage">
+<main class="character-layout">
+<section class="character-shell panel">
+<div class="character-sheet__header">
+<div>
+<p class="eyebrow">D&amp;D CHARACTER CREATOR</p>
+<h2>Character Sheet</h2>
+</div>
+<div class="character-sheet__actions">
+<button class="button button--primary" id="characterSaveButton" type="button">Save Character</button>
+<div class="export-menu character-export-menu" id="characterExportMenu">
+<button aria-expanded="false" aria-haspopup="menu" class="button button--ghost export-menu__button" id="characterExportMenuButton" type="button">Export ▾</button>
+<div class="export-menu__list" id="characterExportMenuList" role="menu">
+<button id="characterExportJsonButton" role="menuitem" type="button">Export JSON</button>
+<button id="characterExportImageButton" role="menuitem" type="button">Export Image</button>
+<button id="characterPrintPdfButton" role="menuitem" type="button">Print / PDF</button>
+</div>
+</div>
+<button class="button button--ghost" id="characterResetButton" type="button">Reset Sheet</button>
+</div>
+</div>
+<div class="character-sheet" id="characterSheet"></div>
+</section>
+</main>
+</section>
+</div>
+<div aria-live="polite" class="toast" id="toast" role="status"></div>
+<div aria-label="Global Spotlight Search" aria-modal="true" class="spotlight-overlay hidden" id="spotlightOverlay" role="dialog">
+<div class="spotlight-backdrop" data-close-spotlight="true"></div>
+<section aria-label="Global Search" class="spotlight-panel">
+<div class="spotlight-search-box">
+<span aria-hidden="true" class="spotlight-search-icon">
+<svg viewbox="0 0 24 24"><circle cx="10.8" cy="10.8" r="5.9"></circle><path d="M15.3 15.3 20 20"></path></svg>
+</span>
+<input autocomplete="off" id="spotlightSearchInput" placeholder="Global Search..." type="search"/>
+<button aria-label="Close global search" class="spotlight-close-button" id="spotlightCloseButton" type="button">×</button>
+</div>
+<div aria-live="polite" class="spotlight-results" id="spotlightResults"></div>
+</section>
+</div>
+<dialog class="dialog gear-calculator-dialog" id="gearCalculatorDialog">
+<form method="dialog">
+<div class="dialog-title-row">
+<h2>Upgrade Calculator</h2>
+<button aria-label="Close upgrade calculator" class="dialog-x-button" data-close-dialog="gearCalculatorDialog" type="button">×</button>
+</div>
+<p class="dialog-note">Choose the item rarity, upgrade tier, and number of upgrades to estimate total cost, crafting DC, and crafting duration.</p>
+<div class="gear-calculator-grid">
+<div class="field">
+<span>Gear Rarity</span>
+<div class="multi-picker calc-picker" id="gearCalcRarityPicker">
+<button aria-expanded="false" aria-haspopup="listbox" class="multi-picker__button" id="gearCalcRarityButton" type="button">
+<span>
+<strong id="gearCalcRarityLabel">Common</strong>
+<small>Item rarity</small>
+</span>
+<i aria-hidden="true">⌄</i>
+</button>
+<div aria-label="Gear rarity" class="multi-picker__menu" id="gearCalcRarityMenu" role="listbox"></div>
+</div>
+</div>
+<div class="field">
+<span>Upgrade Tier</span>
+<div class="multi-picker calc-picker" id="gearCalcTierPicker">
+<button aria-expanded="false" aria-haspopup="listbox" class="multi-picker__button" id="gearCalcTierButton" type="button">
+<span>
+<strong id="gearCalcTierLabel">Tier I</strong>
+<small>Upgrade power</small>
+</span>
+<i aria-hidden="true">⌄</i>
+</button>
+<div aria-label="Upgrade tier" class="multi-picker__menu" id="gearCalcTierMenu" role="listbox"></div>
+</div>
+</div>
+<div class="field">
+<span>Upgrade Count</span>
+<div class="multi-picker calc-picker" id="gearCalcCountPicker">
+<button aria-expanded="false" aria-haspopup="listbox" class="multi-picker__button" id="gearCalcCountButton" type="button">
+<span>
+<strong id="gearCalcCountLabel">1 Upgrade</strong>
+<small>Number installed</small>
+</span>
+<i aria-hidden="true">⌄</i>
+</button>
+<div aria-label="Upgrade count" class="multi-picker__menu" id="gearCalcCountMenu" role="listbox"></div>
+</div>
+</div>
+</div>
+<div class="gear-calculator-results">
+<article class="gear-calc-result panel">
+<span>Total Cost</span>
+<strong id="gearCalcCostResult">—</strong>
+</article>
+<article class="gear-calc-result panel">
+<span>Crafting DC</span>
+<strong id="gearCalcDcResult">—</strong>
+</article>
+<article class="gear-calc-result panel">
+<span>Crafting Duration</span>
+<strong id="gearCalcTimeResult">—</strong>
+</article>
+</div>
+<div class="dialog-actions">
+<button class="button button--primary" value="close">Close</button>
+</div>
+</form>
+</dialog>
+<dialog class="dialog gear-rules-dialog" id="gearRulesDialog">
+<form method="dialog">
+<div class="dialog-title-row">
+<h2>Upgrade Rules</h2>
+<button aria-label="Close upgrade rules" class="dialog-x-button" data-close-dialog="gearRulesDialog" type="button">×</button>
+</div>
+<div class="gear-rules-dialog__content" id="gearRulesDialogContent"></div>
+<div class="dialog-actions">
+<button class="button button--primary" value="default">Close</button>
+</div>
+</form>
+</dialog>
+<dialog class="dialog dm-code-dialog" id="dmCodeDialog">
+<form id="dmCodeForm" method="dialog">
+<h2>Enter DM Code</h2>
+<p class="dialog-note">DM Mode allows editing homebrew content. Enter the code to continue.</p>
+<label class="field">
+<span>DM Code</span>
+<input autocomplete="off" id="dmCodeInput" inputmode="numeric" maxlength="12" placeholder="Enter code" type="password"/>
+</label>
+<p aria-live="polite" class="dm-code-error" id="dmCodeError"></p>
+<div class="dialog-actions">
+<button class="button button--ghost" data-dialog-cancel="" type="button">Cancel</button>
+<button class="button button--primary" id="dmCodeSubmitButton" value="default">Unlock DM Mode</button>
+</div>
+</form>
+</dialog>
+<dialog class="dialog spell-rules-dialog" id="spellRulesDialog">
+<form method="dialog">
+<div class="dialog-title-row">
+<h2>Spell Rule Changes</h2>
+<button aria-label="Close spell rule changes" class="dialog-x-button" data-close-dialog="spellRulesDialog" type="button">×</button>
+</div>
+<div class="spell-rules-dialog__content" id="spellRulesDialogContent"></div>
+<div class="dialog-actions">
+<button class="button button--primary" value="close">Close</button>
+</div>
+</form>
+</dialog>
+<dialog class="dialog spell-edit-dialog" id="spellEditDialog">
+<form id="spellEditForm" method="dialog">
+<h2>Edit Spell</h2>
+<input id="spellEditId" type="hidden"/>
+<label class="field">
+<span>Name</span>
+<input id="spellEditName" maxlength="90" type="text"/>
+</label>
+<div class="spell-edit-grid">
+<label class="field">
+<span>School</span>
+<input id="spellEditSchool" maxlength="40" type="text"/>
+</label>
+<label class="field">
+<span>Casting</span>
+<input id="spellEditCasting" maxlength="80" type="text"/>
+</label>
+<label class="field">
+<span>Range</span>
+<input id="spellEditRange" maxlength="80" type="text"/>
+</label>
+<label class="field">
+<span>Components</span>
+<input id="spellEditComponents" maxlength="120" type="text"/>
+</label>
+<label class="field">
+<span>Duration</span>
+<input id="spellEditDuration" maxlength="100" type="text"/>
+</label>
+<label class="field">
+<span>Added To Lists</span>
+<input id="spellEditAddedTo" placeholder="Sorcerer, Warlock" type="text"/>
+</label>
+<label class="field">
+<span>Class Lists</span>
+<input id="spellEditClasses" placeholder="Wizard, Sorcerer" type="text"/>
+</label>
+</div>
+<label class="field">
+<span>Full Rebalance Text</span>
+<textarea id="spellEditDescription" rows="8"></textarea>
+</label>
+<div class="dialog-actions">
+<button class="button button--danger" id="spellResetButton" type="button">Reset This Spell</button>
+<button class="button button--ghost" data-dialog-cancel="" type="button">Cancel</button>
+<button class="button button--primary" id="spellSaveButton" value="default">Save Spell</button>
+</div>
+</form>
+</dialog>
+<dialog class="dialog dm-dialog gear-edit-dialog" id="gearEditDialog">
+<form id="gearEditForm" method="dialog">
+<h2>Edit Gear Upgrade</h2>
+<input id="gearEditId" type="hidden"/>
+<div class="dm-edit-grid">
+<label class="field">
+<span>Name</span>
+<input id="gearEditName" maxlength="100" type="text"/>
+</label>
+<label class="field">
+<span>Type</span>
+<input id="gearEditType" placeholder="Armor or Weapon" type="text"/>
+</label>
+<label class="field">
+<span>Tier</span>
+<input id="gearEditTier" max="3" min="1" type="number"/>
+</label>
+<label class="field">
+<span>Tags</span>
+<input id="gearEditTags" placeholder="Defense, Utility" type="text"/>
+</label>
+</div>
+<label class="field">
+<span>Summary</span>
+<input id="gearEditSummary" maxlength="220" type="text"/>
+</label>
+<label class="field">
+<span>Rules Text</span>
+<textarea id="gearEditText" rows="7"></textarea>
+</label>
+<div class="dialog-actions">
+<button class="button button--danger" id="gearResetButton" type="button">Reset This Upgrade</button>
+<button class="button button--ghost" data-dialog-cancel="" type="button">Cancel</button>
+<button class="button button--primary" id="gearSaveButton" value="default">Save Upgrade</button>
+</div>
+</form>
+</dialog>
+<dialog class="dialog dm-dialog weapon-edit-dialog" id="weaponEditDialog">
+<form id="weaponEditForm" method="dialog">
+<h2>Edit Weapon</h2>
+<input id="weaponEditId" type="hidden"/>
+<div class="dm-edit-grid dm-edit-grid--wide">
+<label class="field">
+<span>Name</span>
+<input id="weaponEditName" maxlength="100" type="text"/>
+</label>
+<label class="field">
+<span>Collection</span>
+<input id="weaponEditCollection" placeholder="Specialized Weapons" type="text"/>
+</label>
+<label class="field">
+<span>Category</span>
+<input id="weaponEditCategory" placeholder="Martial Melee Weapons" type="text"/>
+</label>
+<label class="field">
+<span>Mode</span>
+<input id="weaponEditMode" placeholder="Melee or Ranged" type="text"/>
+</label>
+<label class="field">
+<span>Type</span>
+<input id="weaponEditType" placeholder="Sword, Dagger, Firearm..." type="text"/>
+</label>
+<label class="field">
+<span>Cost</span>
+<input id="weaponEditCost" type="text"/>
+</label>
+<label class="field">
+<span>Damage</span>
+<input id="weaponEditDamage" type="text"/>
+</label>
+<label class="field">
+<span>Damage Type</span>
+<input id="weaponEditDamageType" type="text"/>
+</label>
+<label class="field">
+<span>Range</span>
+<input id="weaponEditRange" type="text"/>
+</label>
+<label class="field">
+<span>Weight</span>
+<input id="weaponEditWeight" type="text"/>
+</label>
+</div>
+<label class="field">
+<span>Properties</span>
+<input id="weaponEditProperties" placeholder="Finesse, Heavy, Reach" type="text"/>
+</label>
+<label class="field">
+<span>Ability Name</span>
+<input id="weaponEditAbilityName" maxlength="100" type="text"/>
+</label>
+<label class="field">
+<span>Ability Text</span>
+<textarea id="weaponEditAbilityText" rows="6"></textarea>
+</label>
+<div class="dialog-actions">
+<button class="button button--danger" id="weaponResetButton" type="button">Reset This Weapon</button>
+<button class="button button--ghost" data-dialog-cancel="" type="button">Cancel</button>
+<button class="button button--primary" id="weaponSaveButton" value="default">Save Weapon</button>
+</div>
+</form>
+</dialog>
+<dialog class="dialog dm-dialog condition-edit-dialog" id="conditionEditDialog">
+<form id="conditionEditForm" method="dialog">
+<h2>Edit Condition</h2>
+<input id="conditionEditId" type="hidden"/>
+<div class="dm-edit-grid dm-edit-grid--wide">
+<label class="field">
+<span>Name</span>
+<input id="conditionEditName" maxlength="100" type="text"/>
+</label>
+<label class="field">
+<span>Category</span>
+<input id="conditionEditCategory" placeholder="Damage, Elemental, Mental..." type="text"/>
+</label>
+<label class="field">
+<span>Duration</span>
+<input id="conditionEditDuration" type="text"/>
+</label>
+<label class="field">
+<span>Elements</span>
+<input id="conditionEditElements" placeholder="Fire, Cold, Lightning" type="text"/>
+</label>
+<label class="field">
+<span>Roles</span>
+<input id="conditionEditRoles" placeholder="Damage, Control, Debuff" type="text"/>
+</label>
+<label class="field">
+<span>Rule Hooks</span>
+<input id="conditionEditMechanics" placeholder="Saving Throws, Healing, Movement" type="text"/>
+</label>
+</div>
+<label class="field">
+<span>Intro</span>
+<input id="conditionEditIntro" maxlength="240" type="text"/>
+</label>
+<label class="field">
+<span>Summary</span>
+<input id="conditionEditSummary" maxlength="240" type="text"/>
+</label>
+<label class="field">
+<span>Rules</span>
+<textarea id="conditionEditRules" placeholder="One rule per line" rows="7"></textarea>
+</label>
+<div class="dm-edit-grid">
+<label class="field">
+<span>Table Headers</span>
+<input id="conditionEditTableHeaders" placeholder="Tier, Damage, Save DC" type="text"/>
+</label>
+<label class="field">
+<span>Table Rows</span>
+<textarea id="conditionEditTableRows" placeholder="I | 5 | 10" rows="4"></textarea>
+</label>
+</div>
+<div class="dialog-actions">
+<button class="button button--danger" id="conditionResetButton" type="button">Reset This Condition</button>
+<button class="button button--ghost" data-dialog-cancel="" type="button">Cancel</button>
+<button class="button button--primary" id="conditionSaveButton" value="default">Save Condition</button>
+</div>
+</form>
+</dialog>
+<dialog class="dialog build-code-dialog" id="buildCodeDialog">
+<form id="buildCodeForm" method="dialog">
+<h2>Build Code</h2>
+<p class="dialog-note">Copy this code to share the build, or paste a code here and import it.</p>
+<label class="field">
+<span>Importable Build Code</span>
+<textarea id="buildCodeText" rows="7" spellcheck="false"></textarea>
+</label>
+<div class="dialog-actions">
+<button class="button" id="copyBuildCodeButton" type="button">Copy Code</button>
+<button class="button button--primary" id="importBuildCodeButton" type="button">Import Code</button>
+<button class="button button--ghost" value="cancel">Close</button>
+</div>
+</form>
+</dialog>
+<dialog class="dialog dm-dialog" id="dmEditDialog">
+<form id="dmEditForm" method="dialog">
+<h2>Edit Tactic</h2>
+<input id="dmEditId" type="hidden"/>
+<label class="field">
+<span>Name</span>
+<input id="dmEditName" maxlength="80" type="text"/>
+</label>
+<label class="field">
+<span>One-line Summary</span>
+<input id="dmEditSummary" maxlength="180" type="text"/>
+</label>
+<label class="field">
+<span>Action Tags</span>
+<input id="dmEditTags" placeholder="Passive, Reaction, Bonus Action" type="text"/>
+</label>
+<label class="field">
+<span>Full Description</span>
+<textarea id="dmEditText" rows="7"></textarea>
+</label>
+<div class="dialog-actions">
+<button class="button button--danger" id="dmResetTacticButton" type="button">Reset This Tactic</button>
+<button class="button button--ghost" data-dialog-cancel="" type="button">Cancel</button>
+<button class="button button--primary" id="dmSaveTacticButton" value="default">Save Tactic</button>
+</div>
+</form>
+</dialog>
+<dialog class="dialog" id="iosDialog">
+<form method="dialog">
+<h2>Install on iPhone / iPad</h2>
+<p>Open the hosted app in Safari, tap Share, choose <strong>Add to Home Screen</strong>, then enable <strong>Open as Web App</strong> when available.</p>
+<button class="button button--primary" value="close">Got it</button>
+</form>
+</dialog>
+<!-- v5.90: Character Creator spell UX, exports, book buttons, and action-economy removal -->
+<!-- v5.90b: compact player-facing print export -->
+<!-- v5.91: Class/subclass feature reference + homebrew condition toggle -->
+<!-- V91 stable repair: character sheet dropdowns/books/spell filters/proficiency scroll -->
+<!-- V96: richer Class & Subclass Features resources/tools; built from V91 stable dropdown final -->
+<!-- V97: Pact Magic in spell slots + clickable class/subclass feature info popups -->
+<!-- V109: desktop restored to V103; mobile-only app mode repaired and isolated -->
+<!-- V110: QA pass fixes, mobile polish, overflow containment -->
+<!-- V111: mobile-only War Tactics contextual menu and Gear tool visibility -->
+<!-- V112: mobile app shell, density modes, advanced tools drawer, card hierarchy polish -->
+<!-- V117 recovery: V113 contextual filter presets, mobile War tier chips, home favorites showcase (live placement, observer removed) -->
+<!-- V117 recovery: V114 Character Creator table-use polish, dice bottom sheet/history/settings, mobile low-power compact mode (live placement, body observer removed) -->
+<!-- V120 stable mobile filter recovery: War tier filters, Conditions names-only menu, Gear mobile filter structure -->
+<!-- V121 QA stability polish: scoped mobile menu overrides, no full-page observers -->
+<script src="app.js"></script></body>
+</html>
