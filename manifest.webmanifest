@@ -1,6 +1,6 @@
 {
-  "name": "D&D Homebrew Compendium",
-  "short_name": "Homebrew",
+  "name": "Deck of Many Brews",
+  "short_name": "Many Brews",
   "description": "Installable offline D&D homebrew compendium for campaign rules, tactics, spells, gear, weapons, conditions, characters, and dice.",
   "id": "./",
   "start_url": "./",

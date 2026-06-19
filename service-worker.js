@@ -1,5 +1,5 @@
 /* Deck of Many Brews service worker - safe refresh/offline cache */
-const APP_VERSION = 'v121-pwa.2';
+const APP_VERSION = 'v122';
 const CACHE_PREFIX = 'homebrew-compendium-';
 const CACHE_NAME = `${CACHE_PREFIX}${APP_VERSION}`;
 

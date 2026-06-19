@@ -1,31 +1,27 @@
-# D&D Homebrew Compendium PWA
+# Deck of Many Brews v122 PWA
 
-Version: v121-pwa.1
+Static PWA build for Cloudflare Pages, GitHub Pages, Netlify, Vercel, or similar static hosting.
 
-Upload every file in this folder to the root of a static host such as Cloudflare Pages, Netlify, Vercel, or GitHub Pages.
+## Cloudflare Pages
 
-Required files:
-- index.html
-- app.css
-- app.js
-- manifest.webmanifest
-- service-worker.js
-- version.json
-- icons/icon-192.png
-- icons/icon-512.png
+Use the repository root as the output directory. No backend is required.
 
-Update flow:
-1. Deploy a new build with a new version string in version.json, app.js, and service-worker.js.
-2. Existing users will be prompted instead of silently forced to update.
-3. The Update button activates the waiting service worker or refreshes the cached shell, then reloads.
-4. LocalStorage data remains in the browser; use Export All before major releases.
+Suggested settings:
+- Framework preset: None
+- Build command: exit 0
+- Build output directory: /
+- Production branch: main
 
-Important testing notes:
-- Service workers require HTTPS, except on localhost.
-- Offline mode works after the first successful online load.
-- iOS installation is manual through Safari: Share → Add to Home Screen.
-- Android/Chrome should show install support once served over HTTPS.
+## Update notes
 
+Version: v122
 
-## v121-pwa.2
-Safe service-worker refresh/offline fallback fix. Preserves localStorage data.
+Changes:
+- Gear upgrade tools moved into a separate in-page tools view.
+- Weapon comparison/attack tools moved into a modal window.
+- War Tactics filters rebuilt as All / Paths / Tactics plus multi-select Tier I/II/III.
+- War Paths use compact scrollable card rows with differentiated fantasy icons.
+- Tactic tags are hidden from War Tactics cards to reduce clutter.
+- Added scroll-safety CSS overrides for pages and mobile shell.
+
+LocalStorage keys are preserved. Use Export All before major updates.
