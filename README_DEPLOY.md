@@ -1,9 +1,9 @@
-# Deck of Many Brews v126 PWA
+# Deck of Many Brews v128 PWA
 
-Static PWA build for Cloudflare Pages / GitHub Pages / Netlify / Vercel.
+Upload these files to the root of the GitHub repository connected to Cloudflare Pages.
 
-Upload these files at the project root. Keep `index.html`, `app.css`, `app.js`, `manifest.webmanifest`, `service-worker.js`, `version.json`, and `icons/` together.
+Version v128 fixes mobile War Tactics filters/scrolling and rebuilds Class Progression into compact clickable class feature tabs. LocalStorage keys are preserved.
 
-Version: v126
 
-Notes: Comfort mode removed, Session mode improved into a live character-sheet view, bug polish and validation performed.
+## v128
+- Mobile Character Creator combines Stats and Skills into one Stats & Skills section.
