@@ -15292,7 +15292,7 @@ document.head.append(V81_STYLE);
 /* ===== Deck of Many Brews v123: corrected War filters/cards + condition name colors ===== */
 (function(){
   'use strict';
-  const V = 'v135';
+  const V = 'v137';
   window.HOMEBREW_COMPENDIUM_VERSION = V;
   function h(value){ return typeof escapeHTML === 'function' ? escapeHTML(value) : String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
   function roman(value){ return Number(value) === 1 ? 'I' : Number(value) === 2 ? 'II' : 'III'; }
@@ -15532,7 +15532,7 @@ document.head.append(V81_STYLE);
 /* ===== Deck of Many Brews v124: mobile-only War menu/tier fixes + mobile character roller polish ===== */
 (function(){
   'use strict';
-  const V = 'v135';
+  const V = 'v137';
   window.HOMEBREW_COMPENDIUM_VERSION = V;
   const mq = typeof window.matchMedia === 'function' ? window.matchMedia('(max-width: 820px)') : { matches:false };
   const isMobile = () => !!mq.matches;
@@ -15700,7 +15700,7 @@ document.head.append(V81_STYLE);
 /* ===== PWA runtime: version checks, prompt-based updates, and data migrations ===== */
 (function() {
   'use strict';
-  const CURRENT_VERSION = 'v136';
+  const CURRENT_VERSION = 'v137';
   const DATA_VERSION = 1;
   const DATA_VERSION_KEY = 'homebrewCompendium.appDataVersion';
   window.HOMEBREW_COMPENDIUM_VERSION = CURRENT_VERSION;
@@ -15891,7 +15891,7 @@ document.head.append(V81_STYLE);
 /* ===== Deck of Many Brews v126: density cleanup, session sheet, bug polish ===== */
 (function(){
   'use strict';
-  const V = 'v135';
+  const V = 'v137';
   window.HOMEBREW_COMPENDIUM_VERSION = V;
   const DENSITY_STORE = 'hb-v112-density-mode';
   function isMobile(){ return window.matchMedia && window.matchMedia('(max-width: 820px)').matches; }
@@ -16134,7 +16134,7 @@ document.head.append(V81_STYLE);
 /* ===== Deck of Many Brews v126: performance, battery, and compatibility polish ===== */
 (function(){
   'use strict';
-  const V = 'v135';
+  const V = 'v137';
   window.HOMEBREW_COMPENDIUM_VERSION = V;
   try { document.querySelector('meta[name="app-version"]')?.setAttribute('content', V); } catch(_) {}
 
@@ -16195,7 +16195,7 @@ document.head.append(V81_STYLE);
 /* ===== Deck of Many Brews v128: War mobile filter correction + compact class progression tabs ===== */
 (function(){
   'use strict';
-  const V = 'v135';
+  const V = 'v137';
   window.HOMEBREW_COMPENDIUM_VERSION = V;
   const mq = typeof window.matchMedia === 'function' ? window.matchMedia('(max-width: 820px)') : { matches:false };
   const isMobile = () => !!mq.matches;
@@ -16932,13 +16932,13 @@ document.head.append(V81_STYLE);
 
 
 /* ===== Deck of Many Brews v130: update prompt version sync fix ===== */
-(function(){try{window.HOMEBREW_COMPENDIUM_VERSION='v135';}catch(_){}})();
+(function(){try{window.HOMEBREW_COMPENDIUM_VERSION='v137';}catch(_){}})();
 
 
 /* ===== Deck of Many Brews v131: definitive safe War mobile filter menu ===== */
 (function(){
   'use strict';
-  const V='v135';
+  const V='v137';
   try{window.HOMEBREW_COMPENDIUM_VERSION=V;document.querySelector('meta[name="app-version"]')?.setAttribute('content',V);}catch(_){ }
   const mq = typeof matchMedia === 'function' ? matchMedia('(max-width: 820px)') : {matches:false};
   const isMobile = () => !!mq.matches;
@@ -17043,7 +17043,7 @@ document.head.append(V81_STYLE);
 /* ===== Deck of Many Brews v132: War menu crash, skill card layout, gear calculator and info dialog polish ===== */
 (function(){
   'use strict';
-  const V='v135';
+  const V='v137';
   try{window.HOMEBREW_COMPENDIUM_VERSION=V;document.querySelector('meta[name="app-version"]')?.setAttribute('content',V);}catch(_){ }
   const mq = typeof matchMedia === 'function' ? matchMedia('(max-width: 820px)') : {matches:false};
   const isMobile = () => !!mq.matches;
@@ -17208,7 +17208,7 @@ document.head.append(V81_STYLE);
 /* ===== Deck of Many Brews v133: class progression mechanical detail and themed character notes ===== */
 (function(){
   'use strict';
-  const V='v135';
+  const V='v137';
   try{window.HOMEBREW_COMPENDIUM_VERSION=V;document.querySelector('meta[name="app-version"]')?.setAttribute('content',V);}catch(_){ }
   const esc=value=>typeof escapeHTML==='function'?escapeHTML(value):String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const norm=value=>String(value||'').toLowerCase().replace(/[^a-z0-9]+/g,'').trim();
@@ -17395,7 +17395,7 @@ document.head.append(V81_STYLE);
 /* ===== Deck of Many Brews v134: dedicated HP/Hit Dice trays + stronger subclass spell grants ===== */
 (function(){
   'use strict';
-  const VERSION='v136';
+  const VERSION='v137';
   try{window.HOMEBREW_COMPENDIUM_VERSION=VERSION;}catch(_){ }
   const norm=v=>String(v||'').toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g,'').replace(/[’]/g,"'").replace(/[^a-z0-9]+/g,' ').trim();
   const rows=(arr)=>(arr||[]).map(([level,unlock,spell])=>({level,unlock,spell}));
@@ -17491,25 +17491,25 @@ document.head.append(V81_STYLE);
 })();
 
 
-/* ===== Deck of Many Brews v135: authoritative version sync / app-name polish ===== */
+/* ===== Deck of Many Brews v137: authoritative version sync / app-name polish ===== */
 (function(){
   'use strict';
-  const V='v136';
+  const V='v137';
   try{
     window.HOMEBREW_COMPENDIUM_VERSION=V;
     document.querySelector('meta[name="app-version"]')?.setAttribute('content',V);
-    document.title='Deck of Many Brews v136';
+    document.title='Deck of Many Brews v137';
   }catch(_){}
 })();
 
-/* ===== Deck of Many Brews v136: working War filters, readable skill cards, and Gear tools entry fixes ===== */
+/* ===== Deck of Many Brews v137: working War filters, readable skill cards, and Gear tools entry fixes ===== */
 (function(){
   'use strict';
-  const V='v136';
+  const V='v137';
   try{
     window.HOMEBREW_COMPENDIUM_VERSION=V;
     document.querySelector('meta[name="app-version"]')?.setAttribute('content',V);
-    document.title='Deck of Many Brews v136';
+    document.title='Deck of Many Brews v137';
   }catch(_){ }
   const mq = typeof matchMedia === 'function' ? matchMedia('(max-width: 820px)') : {matches:false};
   const isMobile = () => !!mq.matches;
@@ -17794,4 +17794,169 @@ document.head.append(V81_STYLE);
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => setTimeout(boot, 0)); else setTimeout(boot, 0);
   const mo = new MutationObserver(() => { try { ensureGearToolsFront(); renderMobileMenu(); } catch(_){} });
   try { mo.observe(document.documentElement, {childList:true, subtree:true}); } catch(_) {}
+})();
+
+
+/* ===== Deck of Many Brews v137: current-version stability repair before further feature work ===== */
+(function(){
+  'use strict';
+  const V='v137';
+  try{
+    window.HOMEBREW_COMPENDIUM_VERSION=V;
+    document.querySelector('meta[name="app-version"]')?.setAttribute('content',V);
+    document.title='Deck of Many Brews v137';
+  }catch(_){ }
+
+  const mq = typeof matchMedia === 'function' ? matchMedia('(max-width: 820px)') : {matches:false};
+  const isMobile = () => !!mq.matches;
+  const esc = v => typeof escapeHTML === 'function' ? escapeHTML(v) : String(v ?? '').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const currentPage = () => { try { return activePage || document.body.dataset.v109Page || ''; } catch(_) { return document.body.dataset.v109Page || ''; } };
+  const roman = v => Number(v)===1?'I':Number(v)===2?'II':'III';
+  function saveSafe(){ try { if (typeof save === 'function') save(); } catch(_) {} }
+  function normalizeWar(){
+    try{
+      state.warContentMode = ['all','paths','tactics'].includes(state.warContentMode) ? state.warContentMode : 'all';
+      const source = Array.isArray(state.warTierFilters) ? state.warTierFilters : (Array.isArray(state.warTiers) ? state.warTiers : ['1']);
+      state.warTierFilters = [...new Set(source.map(String).filter(v=>['1','2','3'].includes(v)))].sort((a,b)=>Number(a)-Number(b));
+      if (!state.warTierFilters.length) state.warTierFilters = ['1'];
+      state.warTiers = state.warTierFilters.slice();
+    }catch(_){ }
+  }
+  function warTypes(){
+    try{
+      const base = Array.isArray(categories) ? categories : [];
+      return [{id:'all',label:'All Types'}].concat(base.map(c=>({id:String(c.id||''),label:String(c.label||c.id||'Type')})).filter(c=>c.id));
+    }catch(_){ return [{id:'all',label:'All Types'}]; }
+  }
+  function renderWarFilterMenu(){
+    const menu=document.getElementById('mobileSectionMenuV109');
+    const content=menu?.querySelector('.v109-mobile-menu__content');
+    if(!menu||!content||!isMobile()||currentPage()!=='war') return;
+    normalizeWar();
+    const mode=state.warContentMode||'all';
+    const opt=(label,attrs,active)=>`<button type="button" class="v109-menu-option deck-v137-war-option ${active?'is-active':''}" ${attrs}><span>${esc(label)}</span></button>`;
+    const group=(title,html,extra='')=>`<div class="v109-menu-group deck-v137-war-group"><div class="v109-menu-group__title">${esc(title)}</div><div class="v109-menu-grid ${extra}">${html}</div></div>`;
+    const show=['all','paths','tactics'].map(m=>opt(m==='all'?'All':m==='paths'?'Paths':'Tactics',`data-v137-war-mode="${m}"`,mode===m)).join('');
+    const types=warTypes().map(t=>{
+      const active=t.id==='all' ? (!activeFilters || activeFilters.size===0) : !!activeFilters?.has?.(t.id);
+      return opt(t.label,`data-v137-war-type="${esc(t.id)}"`,active);
+    }).join('');
+    content.innerHTML=`<div class="deck-v137-war-menu">${group('Show',show)}${group('Types',types,'v109-menu-grid--types')}</div>`;
+    const label=menu.querySelector('.v109-mobile-menu__label'); if(label) label.textContent='War Tactics';
+  }
+  function setWarMenuOpen(open){
+    const menu=document.getElementById('mobileSectionMenuV109'); if(!menu) return;
+    menu.classList.toggle('is-open',!!open);
+    menu.querySelector('.v109-mobile-menu__button')?.setAttribute('aria-expanded', open?'true':'false');
+    if(open) renderWarFilterMenu();
+  }
+  function renderWarSafe(){
+    try{ normalizeWar(); }catch(_){ }
+    try{ if(typeof save==='function') save(); }catch(_){ }
+    try{ if(typeof renderCategoryFilters==='function') renderCategoryFilters(); }catch(e){ console.warn('[v137] renderCategoryFilters failed',e); }
+    try{ if(typeof renderTree==='function') renderTree(); }catch(e){ console.warn('[v137] renderTree failed',e); }
+    try{ if(typeof renderWarActiveFilters==='function') renderWarActiveFilters(); }catch(_){ }
+    setTimeout(renderWarFilterMenu,0);
+  }
+
+  // Intercept the War mobile menu before older legacy menu handlers can rewrite/crash it.
+  window.addEventListener('click', function(e){
+    if(!isMobile() || currentPage()!=='war') return;
+    const menuButton=e.target.closest?.('#mobileSectionMenuV109 .v109-mobile-menu__button');
+    const backdrop=e.target.closest?.('#mobileSectionMenuV109 [data-v109-close]');
+    const mode=e.target.closest?.('[data-v137-war-mode]');
+    const type=e.target.closest?.('[data-v137-war-type]');
+    if(menuButton||backdrop||mode||type){
+      e.preventDefault(); e.stopPropagation(); if(e.stopImmediatePropagation) e.stopImmediatePropagation();
+      if(menuButton){ const menu=document.getElementById('mobileSectionMenuV109'); setWarMenuOpen(!menu?.classList.contains('is-open')); return; }
+      if(backdrop){ setWarMenuOpen(false); return; }
+      if(mode){ try{ state.warContentMode=['all','paths','tactics'].includes(mode.dataset.v137WarMode)?mode.dataset.v137WarMode:'all'; }catch(_){} renderWarSafe(); return; }
+      if(type){ try{ const id=type.dataset.v137WarType; if(id==='all') activeFilters.clear(); else if(activeFilters.has(id)) activeFilters.delete(id); else activeFilters.add(id); }catch(_){} renderWarSafe(); return; }
+    }
+  }, true);
+  window.addEventListener('pointerdown', function(e){
+    if(isMobile() && currentPage()==='war' && e.target.closest?.('#mobileSectionMenuV109 .v109-mobile-menu__button,[data-v137-war-mode],[data-v137-war-type]')){
+      e.stopPropagation(); if(e.stopImmediatePropagation) e.stopImmediatePropagation();
+    }
+  }, true);
+
+  function patchWarRenderFilters(){
+    // Keep current renderer, but guarantee the state used by v136 renderTree is valid and falls back to Tier I.
+    if(typeof renderTree==='function' && !renderTree.__deckV137Guard){
+      const old=renderTree;
+      const wrapped=function(){ normalizeWar(); return old.apply(this,arguments); };
+      wrapped.__deckV137Guard=true;
+      try{ renderTree=wrapped; window.renderTree=wrapped; }catch(_){ window.renderTree=wrapped; }
+    }
+  }
+
+  const style=document.createElement('style');
+  style.id='deckV137CurrentStabilityFix';
+  style.textContent=`
+    @media(max-width:820px){
+      #mobileSectionMenuV109 .deck-v137-war-menu{display:grid!important;gap:12px!important;max-width:100%!important;overflow-x:hidden!important;}
+      #mobileSectionMenuV109 .deck-v137-war-menu .v109-menu-grid{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:8px!important;}
+      #mobileSectionMenuV109 .deck-v137-war-menu .v109-menu-grid--types{grid-template-columns:repeat(2,minmax(0,1fr))!important;}
+      #mobileSectionMenuV109 .deck-v137-war-option{min-height:40px!important;border-radius:13px!important;padding:8px 7px!important;white-space:normal!important;}
+      #mobileSectionMenuV109 .deck-v137-war-option span{font-size:.76rem!important;line-height:1.14!important;writing-mode:horizontal-tb!important;word-break:normal!important;overflow-wrap:normal!important;text-orientation:mixed!important;}
+      #warTacticsPage .deck-v136-path-cards,#warTacticsPage .deck-v136-standalone-grid,#warTacticsPage .deck-v123-path-cards,#warTacticsPage .standalone-grid{max-width:100%!important;min-width:0!important;overflow-x:auto!important;-webkit-overflow-scrolling:touch!important;}
+    }
+
+    /* Current-version skill card repair: keep names horizontal and usable in normal and alternate views. */
+    #characterSheet .skill-grid .skill-row,
+    #characterSheet .character-alt-skill-list-v83 .skill-row,
+    #characterSheet .skill-row--compact-v85{
+      display:grid!important;
+      grid-template-columns:52px minmax(9rem,1fr) minmax(118px,.72fr)!important;
+      grid-template-areas:'mod title bonus' 'mod checks bonus'!important;
+      align-items:center!important;
+      gap:7px 10px!important;
+      min-width:0!important;
+      overflow:visible!important;
+    }
+    #characterSheet .skill-row>strong,
+    #characterSheet .skill-row--compact-v85 .skill-row-compact-v85__top strong{
+      grid-area:mod!important;min-width:46px!important;text-align:center!important;writing-mode:horizontal-tb!important;text-orientation:mixed!important;white-space:nowrap!important;
+    }
+    #characterSheet .skill-row>span,
+    #characterSheet .skill-row--compact-v85 .skill-row-compact-v85__top span{
+      grid-area:title!important;display:block!important;min-width:0!important;max-width:100%!important;white-space:normal!important;writing-mode:horizontal-tb!important;text-orientation:mixed!important;word-break:normal!important;overflow-wrap:normal!important;hyphens:none!important;font-weight:950!important;line-height:1.16!important;
+    }
+    #characterSheet .skill-row>span .skill-ability-label,
+    #characterSheet .skill-row--compact-v85 .skill-ability-label{display:inline-flex!important;margin-left:6px!important;white-space:nowrap!important;writing-mode:horizontal-tb!important;}
+    #characterSheet .skill-row>label.character-checkbox{grid-area:checks!important;display:inline-flex!important;width:max-content!important;max-width:100%!important;margin:0!important;}
+    #characterSheet .skill-row>label.character-checkbox+label.character-checkbox{margin-left:68px!important;margin-top:-34px!important;}
+    #characterSheet .skill-row>.character-stepper--skill,
+    #characterSheet .skill-row--compact-v85 .character-stepper--skill{grid-area:bonus!important;justify-self:stretch!important;display:grid!important;grid-template-columns:34px minmax(42px,1fr) 34px!important;gap:5px!important;align-items:center!important;min-width:0!important;max-width:100%!important;}
+    #characterSheet .skill-row>.character-stepper--skill .skill-bonus-input,
+    #characterSheet .skill-row--compact-v85 .skill-bonus-input{width:100%!important;min-width:0!important;text-align:center!important;}
+    #characterSheet .skill-row--compact-v85 .skill-row-compact-v85__top,
+    #characterSheet .skill-row--compact-v85 .skill-row-compact-v85__controls{display:contents!important;}
+    #characterSheet .skill-row--compact-v85 .skill-row-compact-v85__checks{grid-area:checks!important;display:flex!important;gap:8px!important;flex-wrap:wrap!important;min-width:0!important;}
+    #characterSheet .skill-row--compact-v85 .skill-row-compact-v85__checks .character-checkbox{margin:0!important;}
+    #characterSheet .skill-row-compact-v85__controls .character-stepper-buttons-v85{display:contents!important;}
+    @media(max-width:430px){
+      #characterSheet .skill-grid .skill-row,#characterSheet .character-alt-skill-list-v83 .skill-row,#characterSheet .skill-row--compact-v85{grid-template-columns:48px minmax(0,1fr)!important;grid-template-areas:'mod title' 'mod checks' 'bonus bonus'!important;}
+      #characterSheet .skill-row>span,#characterSheet .skill-row--compact-v85 .skill-row-compact-v85__top span{white-space:normal!important;word-break:normal!important;overflow-wrap:break-word!important;}
+      #characterSheet .skill-row>label.character-checkbox+label.character-checkbox{margin-left:66px!important;}
+    }
+
+    /* Dialog containment safety: current popups should fit screen instead of bleeding out. */
+    .modal,.dialog,.popup,.character-info-dialog,.rules-dialog,.gear-calculator-dialog{max-width:calc(100vw - 18px)!important;box-sizing:border-box!important;}
+    .modal__panel,.dialog__panel,.dialog-panel,.popup__panel,[role='dialog']{max-width:calc(100vw - 18px)!important;max-height:calc(100dvh - 24px)!important;box-sizing:border-box!important;overflow:auto!important;}
+    .modal__body,.dialog-body,.popup__body{max-width:100%!important;overflow-x:hidden!important;box-sizing:border-box!important;}
+    #gearCalculatorDialog .dialog-body,#gearCalculatorDialog form,#gearCalculatorDialog .gear-calculator-dialog{max-width:100%!important;overflow-x:hidden!important;}
+    #gearCalculatorDialog .gear-calculator-grid,#gearCalculatorDialog .gear-calculator-results,#gearPage .gear-v89-grid,#gearPage .gear-v89-results{display:grid!important;grid-template-columns:repeat(auto-fit,minmax(min(100%,190px),1fr))!important;gap:10px!important;max-width:100%!important;overflow-x:hidden!important;}
+    #gearCalculatorDialog input,#gearCalculatorDialog select,#gearCalculatorDialog textarea,#gearCalculatorDialog button{max-width:100%!important;min-width:0!important;box-sizing:border-box!important;}
+  `;
+  document.head.appendChild(style);
+
+  function boot(){
+    patchWarRenderFilters();
+    normalizeWar();
+    if(currentPage()==='war'){ try{renderWarSafe();}catch(_){} }
+    setTimeout(renderWarFilterMenu,0); setTimeout(renderWarFilterMenu,160);
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',()=>setTimeout(boot,0)); else setTimeout(boot,0);
+  document.addEventListener('click', e=>{ if(e.target.closest?.('#navWarTactics,#topPageMenu button,.top-page-picker__option')) setTimeout(boot,80); }, true);
 })();
