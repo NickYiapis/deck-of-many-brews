@@ -1660,7 +1660,7 @@ function toggleCollapsibleSet(section, collapsedSet, key, renderFn) {
     content.style.removeProperty("max-height");
     content.style.removeProperty("opacity");
     content.style.removeProperty("transform");
-  }, 260);
+  }, 170);
 }
 
 function refreshFavoriteFilterButtons() {
@@ -9807,6 +9807,32 @@ const CHARACTER_SUBCLASS_GRANTED_SPELLS_V577 = {
   "fey wanderer": [
     { level: 1, unlock: 3, spell: "Charm Person" }, { level: 2, unlock: 5, spell: "Misty Step" },
     { level: 3, unlock: 9, spell: "Dispel Magic" }, { level: 4, unlock: 13, spell: "Dimension Door" }, { level: 5, unlock: 17, spell: "Mislead" }
+  ],
+  "college of glamour": [
+    { level: 1, unlock: 3, spell: "Charm Person" }, { level: 2, unlock: 3, spell: "Mirror Image" }
+  ],
+  "circle of the moon": [
+    { level: 0, unlock: 3, spell: "Starry Wisp" }, { level: 1, unlock: 3, spell: "Cure Wounds" },
+    { level: 2, unlock: 3, spell: "Moonbeam" }, { level: 3, unlock: 5, spell: "Conjure Animals" },
+    { level: 4, unlock: 7, spell: "Fount of Moonlight" }, { level: 5, unlock: 9, spell: "Mass Cure Wounds" }
+  ],
+  "circle of the sea": [
+    { level: 0, unlock: 3, spell: "Ray of Frost" }, { level: 1, unlock: 3, spell: "Fog Cloud" },
+    { level: 1, unlock: 3, spell: "Thunderwave" }, { level: 2, unlock: 3, spell: "Gust of Wind" },
+    { level: 2, unlock: 3, spell: "Shatter" }, { level: 3, unlock: 5, spell: "Lightning Bolt" },
+    { level: 3, unlock: 5, spell: "Sleet Storm" }, { level: 3, unlock: 5, spell: "Water Breathing" },
+    { level: 4, unlock: 7, spell: "Control Water" }, { level: 4, unlock: 7, spell: "Ice Storm" },
+    { level: 5, unlock: 9, spell: "Conjure Elemental" }, { level: 5, unlock: 9, spell: "Hold Monster" }
+  ],
+  "circle of the stars": [
+    { level: 0, unlock: 3, spell: "Guidance" }, { level: 1, unlock: 3, spell: "Guiding Bolt" }
+  ],
+  "draconic sorcery": [
+    { level: 1, unlock: 3, spell: "Chromatic Orb" }, { level: 1, unlock: 3, spell: "Command" },
+    { level: 2, unlock: 3, spell: "Alter Self" }, { level: 2, unlock: 3, spell: "Dragon's Breath" },
+    { level: 3, unlock: 5, spell: "Fear" }, { level: 3, unlock: 5, spell: "Fly" },
+    { level: 4, unlock: 7, spell: "Arcane Eye" }, { level: 4, unlock: 7, spell: "Charm Monster" },
+    { level: 5, unlock: 9, spell: "Legend Lore" }, { level: 5, unlock: 9, spell: "Summon Dragon" }
   ]
 };
 
@@ -10729,6 +10755,76 @@ document.head.append(V81_STYLE);
   setTimeout(() => { try { renderGearToolsV81(); renderWeaponToolsV81(); enhanceWeaponCardsV81(); } catch(err){} }, 0);
 })();
 
+/* ===== Deck of Many Brews v129: stability, dialogs, gear tools, and focused character controls ===== */
+(function(){
+  'use strict';
+  const V = 'v129';
+  window.HOMEBREW_COMPENDIUM_VERSION = V;
+  document.querySelector('meta[name="app-version"]')?.setAttribute('content', V);
+
+  function fitFloatingPanels(){
+    const width = document.documentElement.clientWidth;
+    const height = document.documentElement.clientHeight;
+    document.querySelectorAll('.character-custom-select.is-open .character-custom-select__menu,.multi-picker.is-open .multi-picker__menu,.v89-tool-select.is-open .v89-tool-select__menu').forEach(menu => {
+      menu.classList.remove('deck-v129-menu-up','deck-v129-menu-right');
+      menu.style.removeProperty('max-height');
+      const rect = menu.getBoundingClientRect();
+      menu.style.maxHeight = `${Math.max(180, Math.min(360, height - 28))}px`;
+      if (rect.right > width - 10) menu.classList.add('deck-v129-menu-right');
+      if (rect.bottom > height - 10 && rect.top > height - rect.bottom + rect.height) menu.classList.add('deck-v129-menu-up');
+    });
+  }
+
+  function syncFocusedRollTray(){
+    const tray = document.getElementById('characterDiceTrayV102');
+    if (!tray) return;
+    const title = tray.querySelector('[data-v102-title]')?.textContent || '';
+    tray.classList.toggle('deck-v129-focused-roll', /Roll Max HP|Roll Hit Dice/i.test(title));
+  }
+
+  function syncGearTools(){
+    const page = document.getElementById('gearPage');
+    if (!page) return;
+    const view = document.body.dataset.deckGearView === 'tools' ? 'tools' : 'browse';
+    page.querySelectorAll('#deckGearTabs [data-deck-gear-view]').forEach(button => {
+      const active = button.dataset.deckGearView === view;
+      button.classList.toggle('is-active', active);
+      button.setAttribute('aria-pressed', String(active));
+    });
+    document.getElementById('deckGearToolsPage')?.setAttribute('aria-hidden', String(view !== 'tools'));
+  }
+
+  document.addEventListener('click', event => {
+    if (event.target.closest?.('.character-custom-select__button,.multi-picker__button,.v89-tool-select__button')) {
+      requestAnimationFrame(() => requestAnimationFrame(fitFloatingPanels));
+    }
+    if (event.target.closest?.('#deckGearTabs [data-deck-gear-view],[data-v120-gear-help],[data-v121-gear-help]')) {
+      setTimeout(syncGearTools, 0);
+      setTimeout(syncGearTools, 100);
+    }
+    if (event.target.closest?.('#characterHpRollerButton,#characterHitDiceSpendButton')) {
+      setTimeout(syncFocusedRollTray, 0);
+      setTimeout(syncFocusedRollTray, 80);
+    }
+    if (event.target.closest?.('#spellRulesButton,[data-character-species-info],[data-character-background-info],.character-info-button')) {
+      setTimeout(() => document.querySelectorAll('dialog[open]').forEach(dialog => dialog.classList.add('deck-v129-fitted-dialog')), 0);
+    }
+  }, true);
+  window.addEventListener('resize', fitFloatingPanels, { passive:true });
+
+  const observer = new MutationObserver(() => {
+    syncFocusedRollTray();
+    syncGearTools();
+    document.querySelectorAll('dialog[open]').forEach(dialog => dialog.classList.add('deck-v129-fitted-dialog'));
+  });
+  const boot = () => {
+    observer.observe(document.body, { childList:true, subtree:true, attributes:true, attributeFilter:['open'] });
+    syncFocusedRollTray();
+    syncGearTools();
+  };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot, { once:true }); else boot();
+})();
+
 
 
 /* v5.82: repair Character Creator dropdowns and add chapter-filtered play panels */
@@ -11159,10 +11255,7 @@ document.head.append(V81_STYLE);
   function skillRowV85(skill, compact = false){
     const data = characterState.skills[skill.name] || { proficient:false, expertise:false, bonus:0 };
     const short = CHARACTER_ABILITIES.find(ability => ability.key === skill.ability)?.short || "";
-    if (compact) {
-      return `<article class="skill-row skill-row--compact-v85" data-skill-ability="${h(skill.ability)}"><div class="skill-row-compact-v85__top"><strong>${formatSigned(getSkillModifier(skill))}</strong><span>${h(skill.name)}</span></div><div class="skill-row-compact-v85__controls"><div class="skill-row-compact-v85__checks"><label class="character-checkbox"><input type="checkbox" data-skill-prof="${h(skill.name)}" ${data.proficient ? "checked" : ""}><span>Prof</span></label><label class="character-checkbox"><input type="checkbox" data-skill-expertise="${h(skill.name)}" ${data.expertise ? "checked" : ""}><span>Exp</span></label></div><div class="character-stepper character-stepper--skill character-stepper--skill-vertical-v85" title="Manual ability-check bonus"><div class="character-stepper-buttons-v85"><button class="character-stepper-button character-stepper-button--skill" type="button" data-skill-bonus-adjust="${h(skill.name)}" data-step="1" aria-label="Increase ${h(skill.name)} bonus">+1</button><button class="character-stepper-button character-stepper-button--skill" type="button" data-skill-bonus-adjust="${h(skill.name)}" data-step="-1" aria-label="Decrease ${h(skill.name)} bonus">−1</button></div><input class="skill-bonus-input" type="number" data-skill-bonus="${h(skill.name)}" value="${h(String(data.bonus || 0))}" title="Manual bonus"></div></div></article>`;
-    }
-    return `<article class="skill-row" data-skill-ability="${h(skill.ability)}"><strong>${formatSigned(getSkillModifier(skill))}</strong><span>${h(skill.name)} <em class="skill-ability-label ability-label--${h(skill.ability)}">${h(short)}</em></span><label class="character-checkbox"><input type="checkbox" data-skill-prof="${h(skill.name)}" ${data.proficient ? "checked" : ""}><span>Prof</span></label><label class="character-checkbox"><input type="checkbox" data-skill-expertise="${h(skill.name)}" ${data.expertise ? "checked" : ""}><span>Expert</span></label><div class="character-stepper character-stepper--skill" title="Manual ability-check bonus"><button class="character-stepper-button character-stepper-button--skill" type="button" data-skill-bonus-adjust="${h(skill.name)}" data-step="-1" aria-label="Decrease ${h(skill.name)} bonus">−1</button><input class="skill-bonus-input" type="number" data-skill-bonus="${h(skill.name)}" value="${h(String(data.bonus || 0))}" title="Manual bonus"><button class="character-stepper-button character-stepper-button--skill" type="button" data-skill-bonus-adjust="${h(skill.name)}" data-step="1" aria-label="Increase ${h(skill.name)} bonus">+1</button></div></article>`;
+    return `<article class="skill-row skill-row--v129 ${compact ? "skill-row--compact-v85" : ""}" data-skill-ability="${h(skill.ability)}"><div class="skill-row-v129__top"><strong>${formatSigned(getSkillModifier(skill))}</strong><span>${h(skill.name)}</span><em class="skill-ability-label ability-label--${h(skill.ability)}">${h(short)}</em></div><div class="skill-row-v129__bottom"><div class="skill-row-v129__checks"><label class="character-checkbox"><input type="checkbox" data-skill-prof="${h(skill.name)}" ${data.proficient ? "checked" : ""}><span>Prof</span></label><label class="character-checkbox"><input type="checkbox" data-skill-expertise="${h(skill.name)}" ${data.expertise ? "checked" : ""}><span>Exp</span></label></div><div class="character-stepper character-stepper--skill skill-row-v129__stepper" title="Manual ability-check bonus"><button class="character-stepper-button character-stepper-button--skill" type="button" data-skill-bonus-adjust="${h(skill.name)}" data-step="-1" aria-label="Decrease ${h(skill.name)} bonus">−1</button><button class="character-stepper-button character-stepper-button--skill" type="button" data-skill-bonus-adjust="${h(skill.name)}" data-step="1" aria-label="Increase ${h(skill.name)} bonus">+1</button><input class="skill-bonus-input" type="number" data-skill-bonus="${h(skill.name)}" value="${h(String(data.bonus || 0))}" title="Manual bonus"></div></div></article>`;
   }
   window.skillRow = function(skill){ return skillRowV85(skill, false); };
 
@@ -14690,6 +14783,7 @@ document.head.append(V81_STYLE);
   function setGearHelp(){
     state.gearSection = state.gearSection==='help' ? 'browse' : 'help'; save();
     document.body.dataset.v120GearSection=state.gearSection;
+    if (state.gearSection === 'help') window.deckV122SetGearView?.('tools');
     ensureGearHelpNote();
     patchMobileMenu();
   }
@@ -14830,7 +14924,7 @@ document.head.append(V81_STYLE);
   function gearTierActive(t){ try{ return t==='all' ? !gearActiveTiers?.size : gearActiveTiers?.has(String(t)); }catch(_){ return t==='all'; } }
   function setGearType(type){ try{ gearActiveTypes?.clear(); if(type && type!=='all') gearActiveTypes.add(type); if(typeof gearFavoritesOnly !== 'undefined') gearFavoritesOnly=false; state.gearSection='browse'; document.body.dataset.v120GearSection='browse'; save(); renderGearFilters?.(); renderGear?.(); }catch(_){ } schedulePatch(); }
   function setGearTier(tier){ try{ gearActiveTiers?.clear(); if(tier && tier!=='all') gearActiveTiers.add(String(tier)); if(typeof gearFavoritesOnly !== 'undefined') gearFavoritesOnly=false; state.gearSection='browse'; document.body.dataset.v120GearSection='browse'; save(); renderGearFilters?.(); renderGear?.(); }catch(_){ } schedulePatch(); }
-  function setGearHelp(){ state.gearSection = state.gearSection==='help' ? 'browse' : 'help'; document.body.dataset.v120GearSection=state.gearSection; save(); schedulePatch(); }
+  function setGearHelp(){ state.gearSection = state.gearSection==='help' ? 'browse' : 'help'; document.body.dataset.v120GearSection=state.gearSection; if(state.gearSection==='help') window.deckV122SetGearView?.('tools'); save(); schedulePatch(); }
   function warMenuHTML(){ const active=activeTierSet(); return makeGroup('Tiers', [1,2,3].map(t=>makeOpt(`Tier ${roman(t)}`,`data-v121-war-tier="${t}"`,active.has(String(t)))).join(''), 'v121-war-tiers'); }
   function conditionMenuHTML(){ const cards=[...document.querySelectorAll('#conditionCards .condition-card, #conditionCards [data-condition-id]')]; const all=makeOpt('All Conditions','data-v121-condition-all="1"',false); const opts=cards.map((card,i)=>{ const title=card.querySelector('h3,h4,.condition-card__title,strong')?.textContent?.trim() || card.dataset.conditionId || `Condition ${i+1}`; return makeOpt(title,`data-v121-condition-jump="${i}"`,false); }).join(''); return makeGroup('Conditions', all+opts, 'v121-condition-names'); }
   function gearMenuHTML(){ const typeHtml=makeOpt('All Types','data-v121-gear-type="all"',gearTypeActive('all'))+makeOpt('Armor','data-v121-gear-type="Armor"',gearTypeActive('Armor'))+makeOpt('Weapon','data-v121-gear-type="Weapon"',gearTypeActive('Weapon')); const tierHtml=makeOpt('All Tiers','data-v121-gear-tier="all"',gearTierActive('all'))+[1,2,3].map(t=>makeOpt(`Tier ${roman(t)}`,`data-v121-gear-tier="${t}"`,gearTierActive(String(t)))).join(''); const helpHtml=makeOpt('Rules & Help','data-v121-gear-help="1"',state.gearSection==='help'); return makeGroup('Upgrade Types',typeHtml,'v121-gear-group')+makeGroup('Tiers',tierHtml,'v121-gear-group')+makeGroup('Rules & Help',helpHtml,'v121-gear-group'); }
@@ -15698,7 +15792,7 @@ document.head.append(V81_STYLE);
 /* ===== PWA runtime: version checks, prompt-based updates, and data migrations ===== */
 (function() {
   'use strict';
-  const CURRENT_VERSION = 'v128';
+  const CURRENT_VERSION = 'v129';
   const DATA_VERSION = 1;
   const DATA_VERSION_KEY = 'homebrewCompendium.appDataVersion';
   window.HOMEBREW_COMPENDIUM_VERSION = CURRENT_VERSION;
@@ -16190,10 +16284,10 @@ document.head.append(V81_STYLE);
   document.head.appendChild(style);
 })();
 
-/* ===== Deck of Many Brews v128: War mobile filter correction + compact class progression tabs ===== */
+/* ===== Deck of Many Brews v129: War mobile filter correction + interactive class progression ===== */
 (function(){
   'use strict';
-  const V = 'v128';
+  const V = 'v129';
   window.HOMEBREW_COMPENDIUM_VERSION = V;
   const mq = typeof window.matchMedia === 'function' ? window.matchMedia('(max-width: 820px)') : { matches:false };
   const isMobile = () => !!mq.matches;
@@ -16426,7 +16520,8 @@ document.head.append(V81_STYLE);
     const showHtml = group('Show', ['all','paths','tactics'].map(m => option(m === 'all' ? 'All' : m === 'paths' ? 'Paths' : 'Tactics', `data-deck-v123-mode="${m}" data-deck-v127-keep-menu="1"`, mode === m)).join(''));
     const allTypes = !activeFilters || activeFilters.size === 0;
     const typeHtml = group('Types', [`<button type="button" class="v109-menu-option ${allTypes?'is-active':''}" data-deck-v123-type="all" data-deck-v127-keep-menu="1"><span>All Types</span></button>`].concat(cats.map(cat => option(cat.label, `data-deck-v123-type="${esc(cat.id)}" data-deck-v127-keep-menu="1"`, activeFilters?.has(cat.id)))).join(''), 'v109-menu-grid--types');
-    content.innerHTML = `<div class="deck-v127-war-menu">${showHtml}${typeHtml}</div>`;
+    const nextHtml = `<div class="deck-v127-war-menu">${showHtml}${typeHtml}</div>`;
+    if (content.innerHTML !== nextHtml) content.innerHTML = nextHtml;
   }
   function refreshWarUI(){
     normalizeWarState();
@@ -16494,18 +16589,24 @@ document.head.append(V81_STYLE);
     const next = table.find(([lvl]) => Number(lvl) > Number(entry.level || 1));
     if (next) unlocked.push({ lvl:next[0], name:`Next L${next[0]}: ${next[1]}`, realName:next[1], locked:true, id:tabId(entry,`next-${next[1]}`,99) });
     const items = unlocked.length ? unlocked : [{lvl:1,name:'Class Features',id:tabId(entry,'Class Features',0)}];
-    const activeId = window.deckV127FeatureTabs?.[entryIndex] || items[0].id;
-    const active = items.find(item => item.id === activeId) || items[0];
-    const displayName = active.realName || active.name;
-    const title = displayName.replace(/^Next\s+L\d+:\s*/i,'');
-    const source = active.locked ? `Unlocks at class level ${active.lvl}` : `Class level ${active.lvl}`;
     const subKey = entry.subclass ? Object.keys(SUBCLASS_SUMMARIES).find(k => norm(entry.subclass).includes(k)) : null;
     const subNote = entry.subclass ? (SUBCLASS_SUMMARIES[subKey] || `${entry.subclass} subclass features are shown as reminders. Use your chosen sourcebook for exact feature text and scaling.`) : 'Choose a subclass to show subclass-specific reminders.';
+    const classOverview = { id:`${key}-overview-class`, name:entry.className || 'Class', overview:'class' };
+    const subclassOverview = { id:`${key}-overview-subclass`, name:entry.subclass || 'Subclass', overview:'subclass' };
+    const activeId = window.deckV127FeatureTabs?.[entryIndex] || classOverview.id;
+    const active = [classOverview, subclassOverview, ...items].find(item => item.id === activeId) || classOverview;
+    const displayName = active.realName || active.name;
+    const title = displayName.replace(/^Next\s+L\d+:\s*/i,'');
+    const source = active.overview === 'class' ? `${entry.primary ? 'Main class' : 'Multiclass'} · Level ${entry.level || 1}` : active.overview === 'subclass' ? 'Subclass overview' : active.locked ? `Unlocks at class level ${active.lvl}` : `Class level ${active.lvl}`;
+    const detail = active.overview === 'class'
+      ? `${CLASS_NOTES_V127[key] || 'This class defines the character’s core progression.'} The buttons below show every feature currently unlocked by this class level and the next feature on the progression.`
+      : active.overview === 'subclass'
+        ? subNote
+        : describeFeature(title, entry);
     return `<article class="deck-v127-class-card" data-v127-class-entry="${entryIndex}">
-      <div class="deck-v127-class-head"><div><strong>${esc(entry.className || 'Class')}${entry.subclass ? ` · ${esc(entry.subclass)}` : ''}</strong><small>${entry.primary ? 'Main class' : 'Multiclass'} · ${esc(CLASS_NOTES_V127[key] || 'Track features granted by your class and subclass levels.')}</small></div><span class="deck-v127-class-level">Level ${esc(entry.level || 1)}</span></div>
+      <div class="deck-v127-class-head"><div class="deck-v129-class-names"><button type="button" class="deck-v129-class-name ${active.id===classOverview.id?'is-active':''}" data-v127-feature-entry="${entryIndex}" data-v127-feature-tab="${esc(classOverview.id)}">${esc(entry.className || 'Class')}</button><button type="button" class="deck-v129-class-name deck-v129-class-name--subclass ${active.id===subclassOverview.id?'is-active':''}" data-v127-feature-entry="${entryIndex}" data-v127-feature-tab="${esc(subclassOverview.id)}">${esc(entry.subclass || 'Choose a subclass')}</button></div><span class="deck-v127-class-level">Level ${esc(entry.level || 1)}</span></div>
       <div class="deck-v127-feature-tabs" role="tablist" aria-label="${esc(entry.className || 'Class')} feature tabs">${items.map(item => `<button type="button" role="tab" class="deck-v127-feature-tab ${item.id===active.id?'is-active':''} ${item.locked?'deck-v127-feature-tab--next':''}" data-v127-feature-entry="${entryIndex}" data-v127-feature-tab="${esc(item.id)}">${esc(item.name)}</button>`).join('')}</div>
-      <div class="deck-v127-feature-detail" role="tabpanel"><small>${esc(source)}</small><h5>${esc(title)}</h5><p>${esc(describeFeature(title, entry))}</p></div>
-      <div class="deck-v127-subclass-note"><strong>${entry.subclass ? esc(entry.subclass) : 'Subclass'}:</strong> ${esc(subNote)}</div>
+      <div class="deck-v127-feature-detail" role="tabpanel"><small>${esc(source)}</small><h5>${esc(title)}</h5><p>${esc(detail)}</p></div>
     </article>`;
   }
   function enhanceClassProgression(){

@@ -14590,3 +14590,171 @@ body {
 .hbc-update-actions button {
   min-width: 100px;
 }
+
+/* v129: stable overlays, compact skill cards, responsive tools, and faster collapsibles */
+.spell-card-grid,
+.gear-card-grid,
+.weapon-card-grid,
+.condition-card-grid {
+  transition-duration: .14s, .12s, .14s !important;
+  transition-timing-function: ease-out !important;
+}
+
+dialog.deck-v129-fitted-dialog[open],
+dialog.dialog[open] {
+  inset: 0 !important;
+  width: min(920px, calc(100vw - 28px)) !important;
+  max-width: calc(100vw - 28px) !important;
+  max-height: calc(100dvh - 28px) !important;
+  margin: auto !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+}
+dialog.deck-v129-fitted-dialog > form,
+dialog.dialog[open] > form {
+  width: 100% !important;
+  max-width: none !important;
+  max-height: calc(100dvh - 28px) !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  overscroll-behavior: contain;
+  box-sizing: border-box !important;
+  scrollbar-gutter: stable;
+}
+.spell-rules-dialog__content,
+.character-choice-detail-grid,
+.character-background-detail-grid,
+.character-benefit-grid-v78 {
+  min-width: 0 !important;
+  max-width: 100% !important;
+}
+.spell-dialog-rules-grid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr)) !important;
+  gap: 12px !important;
+}
+.spell-dialog-rule,
+.spell-dialog-note,
+.character-choice-detail-card,
+.character-background-detail-card,
+.character-benefit-card-v78 {
+  min-width: 0 !important;
+  overflow-wrap: anywhere;
+}
+.spell-dialog-note p,
+.character-choice-detail-card p,
+.character-background-detail-card p,
+.character-benefit-card-v78 p {
+  line-height: 1.5 !important;
+}
+
+.character-custom-select__menu,
+.multi-picker__menu,
+.v89-tool-select__menu {
+  width: min(340px, calc(100vw - 24px)) !important;
+  max-width: calc(100vw - 24px) !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  overscroll-behavior: contain;
+}
+.deck-v129-menu-right { left: auto !important; right: 0 !important; }
+.deck-v129-menu-up { top: auto !important; bottom: calc(100% + 8px) !important; }
+
+.skill-row.skill-row--v129 {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) !important;
+  gap: 8px !important;
+  align-content: start !important;
+  padding: 10px !important;
+  border: 1px solid rgba(255,255,255,.09) !important;
+  border-radius: 14px !important;
+  background: linear-gradient(145deg, rgba(255,255,255,.055), rgba(126,215,255,.025)) !important;
+  min-width: 0 !important;
+}
+.skill-row-v129__top {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: center;
+  min-width: 0;
+}
+.skill-row-v129__top > strong { color: #fff0c9; font-size: 1.05rem; }
+.skill-row-v129__top > span { color: rgba(248,244,255,.96); font-weight: 900; overflow-wrap: anywhere; }
+.skill-row-v129__top > em { justify-self: end; margin: 0 !important; }
+.skill-row-v129__bottom {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: center;
+  min-width: 0;
+}
+.skill-row-v129__checks { display: flex; gap: 6px; flex-wrap: wrap; min-width: 0; }
+.skill-row-v129__checks .character-checkbox { min-height: 30px; padding: 4px 8px !important; border-radius: 999px !important; }
+.skill-row-v129__stepper {
+  display: grid !important;
+  grid-template-columns: auto auto 44px !important;
+  gap: 4px !important;
+  align-items: center !important;
+  justify-content: end !important;
+}
+.skill-row-v129__stepper .character-stepper-button { min-width: 34px !important; width: 34px !important; height: 30px !important; padding: 0 !important; }
+.skill-row-v129__stepper .skill-bonus-input { width: 44px !important; min-width: 44px !important; text-align: center !important; }
+.character-panel--stats-alt-v83 .character-alt-skill-list-v83 { display: grid !important; gap: 7px !important; min-width: 0 !important; }
+
+#characterSheet .deck-v129-class-names { display: grid; gap: 4px; min-width: 0; }
+#characterSheet .deck-v129-class-name {
+  width: fit-content;
+  max-width: 100%;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: #fff1c9;
+  font: inherit;
+  font-size: 1.02rem;
+  font-weight: 950;
+  text-align: left;
+  cursor: pointer;
+  overflow-wrap: anywhere;
+}
+#characterSheet .deck-v129-class-name--subclass { color: #d9b9ff; font-size: .88rem; }
+#characterSheet .deck-v129-class-name:hover,
+#characterSheet .deck-v129-class-name.is-active { color: #fff; text-shadow: 0 0 14px rgba(185,167,255,.42); }
+#characterSheet .deck-v127-feature-detail { min-height: 128px !important; padding: 14px !important; align-content: start; }
+#characterSheet .deck-v127-feature-detail p { font-size: .88rem !important; line-height: 1.55 !important; }
+#characterSheet .character-feature-source-card-v114 textarea,
+#characterSheet .character-feature-groups-v114 textarea {
+  border: 1px solid rgba(185,167,255,.25) !important;
+  border-radius: 14px !important;
+  background: linear-gradient(145deg, rgba(13,16,28,.88), rgba(34,27,48,.74)) !important;
+  color: #f8f3ff !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.05) !important;
+  padding: 10px !important;
+}
+
+body[data-deck-gear-view="tools"] #gearUpgradesPanel { display: none !important; }
+body[data-deck-gear-view="tools"] #deckGearToolsPage { display: grid !important; }
+#deckGearTabs { position: relative; z-index: 2; }
+#characterDiceTrayV102.deck-v129-focused-roll #characterDicePresetsV114 { display: none !important; }
+
+@media (max-width: 820px) {
+  dialog.deck-v129-fitted-dialog[open],
+  dialog.dialog[open] {
+    width: calc(100vw - 16px) !important;
+    max-width: calc(100vw - 16px) !important;
+    max-height: calc(100dvh - 16px) !important;
+  }
+  dialog.deck-v129-fitted-dialog > form,
+  dialog.dialog[open] > form { max-height: calc(100dvh - 16px) !important; padding-bottom: max(14px, env(safe-area-inset-bottom)) !important; }
+  .spell-dialog-rules-grid,
+  .character-choice-detail-grid,
+  .character-background-detail-grid,
+  .character-benefit-grid-v78 { grid-template-columns: minmax(0, 1fr) !important; }
+  .skill-row-v129__bottom { grid-template-columns: minmax(0, 1fr) auto !important; }
+  #characterSheet .deck-v127-feature-detail { min-height: 150px !important; }
+}
+
+@media (max-width: 390px) {
+  .skill-row-v129__bottom { grid-template-columns: 1fr !important; }
+  .skill-row-v129__stepper { justify-content: start !important; }
+}

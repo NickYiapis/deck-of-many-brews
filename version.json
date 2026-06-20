@@ -1,7 +1,7 @@
 {
-  "version": "v128",
+  "version": "v129",
   "dataVersion": 1,
   "releasedAt": "2026-06-20T00:00:00+03:00",
   "updatePolicy": "prompt",
-  "notes": "Combines the mobile Character Creator Stats and Skills sections into one Stats & Skills page while preserving desktop layout and saved data."
+  "notes": "Fixes War Tactics and Gear menus, responsive rules and character info dialogs, smoother collapsibles, improved skill cards and class progression, focused HP rollers, and missing subclass spell grants."
 }
