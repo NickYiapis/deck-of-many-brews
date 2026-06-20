@@ -16545,3 +16545,385 @@ document.head.append(V81_STYLE);
   const boot = () => { bootWar(); bootCharacterProgression(); };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => setTimeout(boot,0)); else setTimeout(boot,0);
 })();
+
+/* ===== Deck of Many Brews v129: bug fixes, mobile menu repair, dialogs, character polish ===== */
+(function(){
+  'use strict';
+  const V='v129';
+  window.HOMEBREW_COMPENDIUM_VERSION=V;
+  try{document.querySelector('meta[name="app-version"]')?.setAttribute('content',V);}catch(_){}
+  const mq = typeof matchMedia === 'function' ? matchMedia('(max-width: 820px)') : {matches:false};
+  const isMobile=()=>!!mq.matches;
+  const esc=v=>typeof escapeHTML==='function'?escapeHTML(v):String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const norm=v=>typeof normalizeSearchText==='function'?normalizeSearchText(v):String(v??'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
+  const roman=n=>Number(n)===1?'I':Number(n)===2?'II':'III';
+  const page=()=>{try{return activePage||document.body.dataset.v109Page||'';}catch(_){return document.body.dataset.v109Page||'';}};
+  const safeSave=()=>{try{if(typeof save==='function')save();}catch(_){}};
+  const safeRenderWar=()=>{try{if(typeof renderCategoryFilters==='function')renderCategoryFilters();}catch(e){console.warn('[v129] renderCategoryFilters failed',e);}try{if(typeof renderTree==='function')renderTree();}catch(e){console.warn('[v129] renderTree failed',e);}};
+
+  const style=document.createElement('style');
+  style.id='deckV129Style';
+  style.textContent=`
+    /* General modal/dialog safety: keep popups inside the viewport and readable. */
+    dialog.dialog, .dialog, .deck-modal-panel, .character-feature-modal-v97__panel, .character-dice-tray-v102,
+    .character-background-detail-card, .character-benefit-grid-v78, .character-species-detail-grid-v78{
+      box-sizing:border-box;
+    }
+    dialog.dialog{
+      width:min(960px,calc(100vw - 24px))!important;
+      max-width:calc(100vw - 24px)!important;
+      max-height:calc(100dvh - 28px)!important;
+      overflow:auto!important;
+      overscroll-behavior:contain;
+      margin:auto!important;
+    }
+    .spell-rules-dialog__content,.gear-rules-dialog__content{
+      max-height:calc(100dvh - 150px)!important;
+      overflow:auto!important;
+      padding-right:2px;
+    }
+    .spell-dialog-rules-grid,.gear-dialog-rules-grid,.gear-dialog-calculations-all{
+      display:grid!important;
+      grid-template-columns:repeat(auto-fit,minmax(220px,1fr))!important;
+      gap:12px!important;
+      align-items:stretch!important;
+    }
+    .spell-dialog-rule,.gear-dialog-rule,.gear-rule-category,.gear-dialog-tools,
+    .character-background-detail-card,.character-benefit-card-v78,.character-species-detail-card-v78{
+      min-width:0!important;
+      overflow-wrap:anywhere;
+    }
+    .spell-dialog-note p{margin:.25rem 0 0!important;line-height:1.35!important;}
+    .dialog form{max-width:100%!important;}
+    .dialog-title-row{gap:10px;align-items:flex-start!important;}
+    .dialog-title-row h2{min-width:0!important;overflow-wrap:anywhere;}
+    .character-benefit-grid-v78,.character-background-detail-grid,.character-species-detail-grid-v78{
+      display:grid!important;
+      grid-template-columns:repeat(auto-fit,minmax(210px,1fr))!important;
+      gap:12px!important;
+    }
+    @media(max-width:720px){
+      dialog.dialog{width:calc(100vw - 16px)!important;max-height:calc(100dvh - 18px)!important;border-radius:18px!important;}
+      .spell-rules-dialog__content,.gear-rules-dialog__content{max-height:calc(100dvh - 126px)!important;}
+      .dialog-title-row h2{font-size:1.02rem!important;line-height:1.18!important;}
+      .spell-dialog-rules-grid,.gear-dialog-rules-grid,.gear-dialog-calculations-all,
+      .character-benefit-grid-v78,.character-background-detail-grid,.character-species-detail-grid-v78{grid-template-columns:1fr!important;}
+    }
+
+    /* Smoother, less visually heavy collapsible open/close. */
+    .collapsible-content,.section-body,.card-body,.tree-section,.path-row,.character-panel,
+    .spell-card,.gear-card,.weapon-card,.condition-card{transition-duration:.16s!important;}
+    details[open]>*:not(summary){animation:none!important;}
+
+    /* War mobile: tiers on the page, Show/Types only in the top-left menu. */
+    @media(max-width:820px){
+      #warTacticsPage .deck-v123-war-filter-panel,#warTacticsPage #deckWarFilterBar{display:none!important;}
+      #warTacticsPage .deck-v129-tier-bar{display:flex!important;position:sticky;top:calc(env(safe-area-inset-top,0px) + 54px);z-index:58;gap:8px;align-items:center;overflow-x:auto;max-width:100%;padding:9px 10px;margin:8px 0 12px;border:1px solid rgba(255,255,255,.12);border-radius:18px;background:linear-gradient(145deg,rgba(12,13,26,.88),rgba(18,13,29,.70));backdrop-filter:blur(12px);-webkit-overflow-scrolling:touch;}
+      #warTacticsPage .deck-v129-tier-bar span{flex:0 0 auto;font-size:.68rem;font-weight:950;letter-spacing:.11em;text-transform:uppercase;color:rgba(126,215,255,.82);}
+      #warTacticsPage .deck-v129-chip{flex:0 0 auto;border:1px solid rgba(255,255,255,.13);border-radius:999px;background:rgba(255,255,255,.055);color:#f7f1ff;min-height:34px;padding:7px 12px;font-weight:950;font-size:.76rem;}
+      #warTacticsPage .deck-v129-chip.is-active{background:linear-gradient(135deg,rgba(255,215,137,.24),rgba(126,215,255,.14));border-color:rgba(255,215,137,.45);box-shadow:0 0 0 1px rgba(255,215,137,.12) inset;}
+      #mobileSectionMenuV109 .deck-v129-war-menu{display:grid;gap:12px;}
+      #mobileSectionMenuV109 .deck-v129-war-menu .v109-menu-grid{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:8px!important;}
+      #mobileSectionMenuV109 .deck-v129-war-menu .v109-menu-grid--types{grid-template-columns:repeat(2,minmax(0,1fr))!important;}
+      #mobileSectionMenuV109 .deck-v129-war-menu .v109-menu-option{min-height:38px!important;border-radius:13px!important;padding:7px 6px!important;}
+      #mobileSectionMenuV109 .deck-v129-war-menu .v109-menu-option span{font-size:.76rem!important;line-height:1.15!important;}
+      #warTacticsPage .paths-list,#warTacticsPage .path-row{max-width:100%!important;min-width:0!important;overflow:visible!important;box-sizing:border-box!important;}
+      #warTacticsPage .path-row{display:grid!important;grid-template-columns:1fr!important;gap:8px!important;}
+      #warTacticsPage .deck-v123-path-cards,#warTacticsPage .path-row{overscroll-behavior-x:contain;}
+      #warTacticsPage .path-row .path-slot{flex:0 0 min(78vw,292px)!important;min-width:min(78vw,292px)!important;max-width:min(78vw,292px)!important;}
+      #warTacticsPage .standalone-grid{overflow-x:auto!important;max-width:100%!important;display:flex!important;flex-wrap:nowrap!important;-webkit-overflow-scrolling:touch!important;}
+    }
+
+    /* Character skill cards: modifier, name/stat first; prof/exp below; bonus controls fill the right side. */
+    .skill-grid .skill-row,.character-alt-skill-list-v83 .skill-row{
+      display:grid!important;
+      grid-template-columns:auto minmax(0,1fr) minmax(118px,.72fr)!important;
+      grid-template-areas:'mod title bonus' 'checks checks bonus'!important;
+      gap:7px 10px!important;
+      align-items:center!important;
+      padding:10px!important;
+      min-width:0!important;
+    }
+    .skill-row>strong{grid-area:mod;min-width:44px;text-align:center;color:#fff0c8;font-size:1.05rem;}
+    .skill-row>span{grid-area:title;min-width:0;font-weight:950;line-height:1.15;}
+    .skill-row>span .skill-ability-label{display:inline-flex;margin-left:5px;opacity:.86;font-size:.68rem;}
+    .skill-row>label.character-checkbox{grid-area:checks;display:inline-flex!important;margin:0!important;min-height:28px;}
+    .skill-row>label.character-checkbox+label.character-checkbox{margin-left:66px!important;margin-top:-35px!important;}
+    .skill-row>.character-stepper--skill{grid-area:bonus;justify-self:stretch;display:grid!important;grid-template-columns:34px minmax(42px,1fr) 34px!important;gap:5px!important;align-items:center!important;min-width:110px;}
+    .skill-row>.character-stepper--skill .skill-bonus-input{width:100%!important;min-width:0!important;text-align:center!important;}
+    .skill-row--compact-v85{grid-template-columns:auto minmax(0,1fr) minmax(110px,.72fr)!important;}
+    .skill-row--compact-v85 .skill-row-compact-v85__top{display:contents!important;}
+    .skill-row--compact-v85 .skill-row-compact-v85__top strong{grid-area:mod;min-width:44px;text-align:center;color:#fff0c8;font-size:1.05rem;}
+    .skill-row--compact-v85 .skill-row-compact-v85__top span{grid-area:title;font-weight:950;}
+    .skill-row--compact-v85 .skill-row-compact-v85__controls{display:contents!important;}
+    .skill-row--compact-v85 .skill-row-compact-v85__checks{grid-area:checks;display:flex;gap:8px;flex-wrap:wrap;}
+    .skill-row--compact-v85 .character-stepper--skill{grid-area:bonus!important;grid-template-columns:34px minmax(42px,1fr) 34px!important;}
+    .skill-row-compact-v85__controls .character-stepper-buttons-v85{display:contents!important;}
+    .skill-row-compact-v85__controls .character-stepper-buttons-v85 button[data-step="-1"]{order:1;}
+    .skill-row-compact-v85__controls .skill-bonus-input{order:2;}
+    .skill-row-compact-v85__controls .character-stepper-buttons-v85 button[data-step="1"]{order:3;}
+    @media(max-width:520px){.skill-grid .skill-row,.character-alt-skill-list-v83 .skill-row{grid-template-columns:auto minmax(0,1fr);grid-template-areas:'mod title' 'checks checks' 'bonus bonus'!important}.skill-row>label.character-checkbox+label.character-checkbox{margin-left:76px!important}.skill-row>.character-stepper--skill{min-width:0;}}
+
+    /* Class progression polish. */
+    .deck-v129-class-card{border:1px solid rgba(185,167,255,.16);border-radius:18px;background:linear-gradient(145deg,rgba(21,18,35,.82),rgba(9,13,24,.78));padding:12px;display:grid;gap:10px;}
+    .deck-v129-class-switch{display:grid;grid-template-columns:1fr;gap:7px;}
+    .deck-v129-class-switch button{width:100%;text-align:left;border:1px solid rgba(255,255,255,.13);border-radius:14px;background:rgba(255,255,255,.045);color:#f8f1ff;padding:9px 10px;font-weight:950;display:flex;justify-content:space-between;gap:10px;align-items:center;}
+    .deck-v129-class-switch button.is-active{border-color:rgba(255,215,137,.42);background:rgba(255,215,137,.10);color:#fff0c8;}
+    .deck-v129-class-switch small{display:block;color:rgba(238,232,255,.66);font-size:.70rem;font-weight:800;margin-top:2px;}
+    .deck-v129-feature-tabs{display:flex;flex-wrap:wrap;gap:7px;}
+    .deck-v129-feature-tab{border:1px solid rgba(255,255,255,.13);border-radius:999px;background:rgba(255,255,255,.055);color:#f8f1ff;padding:7px 10px;font-weight:900;font-size:.75rem;}
+    .deck-v129-feature-tab.is-active{border-color:rgba(126,215,255,.44);background:rgba(126,215,255,.12);color:#fff;}
+    .deck-v129-feature-detail{border:1px solid rgba(255,255,255,.12);border-radius:16px;background:rgba(0,0,0,.18);padding:12px;min-height:110px;}
+    .deck-v129-feature-detail small{color:#9bdfff;font-weight:900;text-transform:uppercase;letter-spacing:.09em;font-size:.65rem;}
+    .deck-v129-feature-detail h5{margin:.25rem 0 .45rem;color:#fff0c8;font-size:1.05rem;}
+    .deck-v129-feature-detail p{margin:0;color:rgba(244,239,255,.84);line-height:1.45;font-size:.92rem;}
+    #characterSheet textarea,.character-panel textarea,.character-grid--textareas textarea{
+      border:1px solid rgba(185,167,255,.20)!important;border-radius:16px!important;background:linear-gradient(145deg,rgba(11,13,24,.72),rgba(24,18,34,.52))!important;color:#fff!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.05)!important;padding:11px!important;
+    }
+
+    /* HP and Hit Dice trays: hide generic preset strip/mode clutter for these dedicated rollers. */
+    #characterDiceTrayV102.deck-v129-dedicated-roll #characterDicePresetsV114,
+    #characterDiceTrayV102.deck-v129-dedicated-roll .character-dice-presets-v114{display:none!important;}
+  `;
+  document.head.appendChild(style);
+
+  function normalizeWarTiers(){
+    try{
+      state.warTierFilters=[...new Set((Array.isArray(state.warTierFilters)?state.warTierFilters:state.warTiers||['1']).map(String).filter(v=>['1','2','3'].includes(v)))].sort((a,b)=>Number(a)-Number(b));
+      if(!state.warTierFilters.length) state.warTierFilters=['1'];
+      state.warTiers=state.warTierFilters.slice();
+      state.warContentMode=['all','paths','tactics'].includes(state.warContentMode)?state.warContentMode:'all';
+    }catch(_){}
+  }
+  function setWarTiers(next){try{state.warTierFilters=[...new Set(next.map(String).filter(v=>['1','2','3'].includes(v)))].sort((a,b)=>Number(a)-Number(b));if(!state.warTierFilters.length)state.warTierFilters=['1'];state.warTiers=state.warTierFilters.slice();safeSave();}catch(_){}}
+  function setWarMode(mode){try{state.warContentMode=['all','paths','tactics'].includes(mode)?mode:'all';safeSave();}catch(_){}}
+  function setWarType(type){
+    try{
+      if(type==='all'){activeFilters.clear();}
+      else if(activeFilters.has(type)) activeFilters.delete(type);
+      else activeFilters.add(type);
+    }catch(_){}
+  }
+  window.deckV122ToggleWarTier=function(tier){normalizeWarTiers();const set=new Set(state.warTierFilters);const key=String(tier);if(set.has(key))set.delete(key);else set.add(key);setWarTiers([...set]);safeRenderWar();renderWarTopMenuSoon();};
+  window.deckV122ToggleWarMode=function(mode){setWarMode(mode);safeRenderWar();renderWarTopMenuSoon();};
+
+  const prevRenderCategoryFilters=typeof renderCategoryFilters==='function'?renderCategoryFilters:null;
+  if(prevRenderCategoryFilters&&!prevRenderCategoryFilters.__deckV129){
+    const wrapped=function(){
+      if(isMobile()&&page()==='war'){
+        normalizeWarTiers();
+        const el=typeof els!=='undefined'?els.categoryFilters:document.getElementById('categoryFilters');
+        if(!el)return;
+        el.innerHTML=`<div class="deck-v129-tier-bar" id="deckV129WarTierBar"><span>Tiers</span>${[1,2,3].map(t=>`<button type="button" class="deck-v129-chip ${state.warTierFilters.includes(String(t))?'is-active':''}" data-v129-war-tier="${t}">Tier ${roman(t)}</button>`).join('')}</div>`;
+        return;
+      }
+      return prevRenderCategoryFilters.apply(this,arguments);
+    };
+    wrapped.__deckV129=true;
+    try{renderCategoryFilters=wrapped;window.renderCategoryFilters=wrapped;}catch(_){window.renderCategoryFilters=wrapped;}
+  }
+  const prevRenderTree=typeof renderTree==='function'?renderTree:null;
+  if(prevRenderTree&&!prevRenderTree.__deckV129){
+    const wrapped=function(){normalizeWarTiers();return prevRenderTree.apply(this,arguments);};
+    wrapped.__deckV129=true;
+    try{renderTree=wrapped;window.renderTree=wrapped;}catch(_){window.renderTree=wrapped;}
+  }
+  function getWarTypes(){
+    try{return [{id:'all',label:'All Types'}].concat((categories||[]).map(c=>({id:c.id,label:c.label||c.id})));}catch(_){return [{id:'all',label:'All Types'}];}
+  }
+  function warMenuHTML(){
+    normalizeWarTiers();
+    const mode=state.warContentMode||'all';
+    const modeBtn=m=>`<button type="button" class="v109-menu-option ${mode===m?'is-active':''}" data-v129-war-mode="${m}"><span>${m==='all'?'All':m==='paths'?'Paths':'Tactics'}</span></button>`;
+    const typeBtn=t=>`<button type="button" class="v109-menu-option ${(t.id==='all'?!activeFilters.size:activeFilters.has(t.id))?'is-active':''}" data-v129-war-type="${esc(t.id)}"><span>${esc(t.label)}</span></button>`;
+    return `<div class="deck-v129-war-menu"><div class="v109-menu-group"><div class="v109-menu-group__title">Show</div><div class="v109-menu-grid">${['all','paths','tactics'].map(modeBtn).join('')}</div></div><div class="v109-menu-group"><div class="v109-menu-group__title">Types</div><div class="v109-menu-grid v109-menu-grid--types">${getWarTypes().map(typeBtn).join('')}</div></div></div>`;
+  }
+  function renderWarTopMenu(){
+    if(!isMobile()||page()!=='war')return;
+    const menu=document.getElementById('mobileSectionMenuV109');
+    const content=menu?.querySelector('.v109-mobile-menu__content');
+    if(!content||!menu.classList.contains('is-open'))return;
+    content.innerHTML=warMenuHTML();
+    const label=menu.querySelector('.v109-mobile-menu__label'); if(label) label.textContent='War Tactics';
+  }
+  function renderWarTopMenuSoon(){[0,40,120].forEach(ms=>setTimeout(renderWarTopMenu,ms));}
+  document.addEventListener('click',e=>{
+    const tier=e.target.closest?.('[data-v129-war-tier]');
+    if(tier){e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();window.deckV122ToggleWarTier(tier.dataset.v129WarTier);return;}
+    const mode=e.target.closest?.('[data-v129-war-mode]');
+    if(mode){e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();setWarMode(mode.dataset.v129WarMode);safeRenderWar();renderWarTopMenuSoon();return;}
+    const type=e.target.closest?.('[data-v129-war-type]');
+    if(type){e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();setWarType(type.dataset.v129WarType);safeRenderWar();renderWarTopMenuSoon();return;}
+    if(e.target.closest?.('.v109-mobile-menu__button,#navWarTactics,#topPageMenu button,.top-page-picker__option'))renderWarTopMenuSoon();
+  },true);
+
+  /* Dialog and action button repair. */
+  function openSafeDialog(dialog){try{if(!dialog)return;if(dialog.open)dialog.close();dialog.showModal();}catch(_){try{dialog?.setAttribute('open','');}catch(__){}}}
+  function renderSpellRulesBetter(){
+    const dlg=document.getElementById('spellRulesDialog'),content=document.getElementById('spellRulesDialogContent'); if(!dlg||!content)return;
+    const groups=[['No Concentration','These spells no longer require concentration.'],['Bonus Action','These spells can now be cast as a bonus action.'],['Ritual','These spells can now be cast as rituals.'],['Level Change','These spells moved to a new spell level.']];
+    content.innerHTML=`<section class="spell-dialog-rules-grid">${groups.map(([type,intro])=>{const notes=(typeof spellRuleNotes!=='undefined'?spellRuleNotes:[]).filter(n=>n.type===type);return `<article class="spell-dialog-rule"><h3>${esc(type)}</h3><p class="spell-dialog-rule__intro">${esc(intro)}</p><div class="spell-dialog-rule__list">${notes.length?notes.map(note=>`<div class="spell-dialog-note"><span>${esc(note.levelLabel)} level</span><p>${typeof highlightGameTermsHTML==='function'?highlightGameTermsHTML((note.spells||[]).map(esc).join(', ')):(note.spells||[]).map(esc).join(', ')}</p></div>`).join(''):'<p class="spell-note-empty">No notes.</p>'}</div></article>`;}).join('')}</section>`;
+    openSafeDialog(dlg);
+  }
+  window.openSpellRulesDialog=renderSpellRulesBetter;
+  function renderGearRulesBetter(){try{if(typeof renderGearRulesDialogContent==='function')renderGearRulesDialogContent();}catch(_){}openSafeDialog(document.getElementById('gearRulesDialog'));}
+  window.openGearRulesDialog=renderGearRulesBetter;
+  document.addEventListener('click',e=>{
+    const spell=e.target.closest?.('#spellRulesButton,.spell-rules-button');
+    if(spell){e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();renderSpellRulesBetter();return;}
+    const gear=e.target.closest?.('#openGearRulesButton,#openGearRulesButtonV89,[data-v120-gear-help],[data-v121-gear-help]');
+    if(gear){e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();renderGearRulesBetter();return;}
+    const gearTools=e.target.closest?.('[data-deck-gear-view="tools"],#deckGearTabs [data-deck-gear-view="tools"]');
+    if(gearTools){try{state.deckGearView='tools';safeSave();document.body.dataset.deckGearView='tools';if(typeof window.deckV122SetGearView==='function')window.deckV122SetGearView('tools');}catch(_){} }
+  },true);
+
+  /* Species/background info dialogs: rerender through the existing content, then keep it readable. */
+  document.addEventListener('click',e=>{
+    if(e.target.closest?.('#characterSpeciesDetailsButton,#characterBackgroundDetailsButton')){
+      setTimeout(()=>{document.querySelectorAll('dialog[open]').forEach(d=>{d.style.maxWidth='calc(100vw - 24px)';d.style.maxHeight='calc(100dvh - 28px)';d.style.overflow='auto';});},40);
+    }
+  },true);
+
+  /* Better class progression cards. */
+  const MECH={
+    rage:'Bonus action to enter Rage for a limited time. While raging, you gain Barbarian damage and durability benefits, but you normally cannot cast or concentrate on spells. Track uses per long rest/table version.',
+    unarmoreddefense:'When not wearing armor, your AC can use a class formula based on Dexterity plus another ability. Shields may still apply if your rules allow it.',
+    recklessattack:'When you make your first attack on your turn, you can gain advantage on melee Strength attacks; attacks against you then gain advantage until your next turn.',
+    dangersense:'You gain improved defense against visible Dexterity-save dangers, helping you avoid traps, spells, and sudden hazards.',
+    extraattack:'When you take the Attack action, make one additional attack. Higher Fighter levels can increase this further.',
+    actionsurge:'Take an extra action on your turn. This is one of the strongest short-rest martial burst tools; track uses separately.',
+    secondwind:'Use a limited class resource to regain hit points. Later versions may also fuel tactical movement/utility options.',
+    fightingstyle:'Choose a combat style that grants a permanent fighting benefit such as defense, archery, dueling, protection, or similar table options.',
+    indomitable:'Reroll a failed saving throw, often with an added Fighter bonus depending on rules version. Track uses.',
+    spellcasting:'You gain spell slots/preparation or known spells from that class. Use the Spellcasting page for ability, save DC, attack bonus, slots, and known/prepared spells.',
+    bardicinspiration:'Use a limited die to help allies with rolls. The die size and refresh timing scale with class level/rules version.',
+    jackofalltrades:'Add part of your proficiency bonus to ability checks that do not already include proficiency.',
+    expertise:'Choose proficiencies that double your proficiency bonus. Apply this to the relevant skills/tools on the sheet.',
+    fontofinspiration:'Your inspiration resource refreshes more often and/or interacts with other Bard features depending on level and rules version.',
+    magicalsecrets:'Add spells from outside your normal Bard list. Record them in your known/prepared spells.',
+    channeldivinity:'Gain a divine resource used by class/subclass options. Track uses and save DC if the effect calls for one.',
+    destroyundead:'When you use Turn Undead, weaker undead can be destroyed outright depending on CR and level.',
+    divineintervention:'Call on divine aid. The exact reliability, action cost, and available effects depend on rules version and level.',
+    wildshape:'Transform into a beast or use Wild Shape charges for subclass features. Track uses, form limits, duration, and permitted CR/movement modes.',
+    wildcompanion:'Spend Wild Shape or a related resource to summon a familiar/companion using the appropriate spell or rule package.',
+    sneakattack:'Once per turn, add extra damage when you have advantage or an eligible ally/condition. The dice scale with Rogue level.',
+    cunningaction:'Use your bonus action for mobility/stealth options such as Dash, Disengage, or Hide.',
+    uncanndodge:'Use your reaction to halve damage from an attack that hits you, when the feature conditions are met.',
+    evasion:'Dexterity saves against many area effects become much safer: no damage on success and reduced damage on failure.',
+    reliabletalent:'Treat low d20 rolls on proficient ability checks as a minimum value, making trained skills extremely dependable.',
+    layonhands:'You have a healing pool based on Paladin level. Spend points to heal or remove specific conditions depending on rules version.',
+    divinesmite:'Spend spell power or use the class feature to add radiant damage to a weapon hit. Extra damage usually improves against certain creature types.',
+    auraofprotection:'You and nearby allies add your Charisma modifier to saving throws while within your aura and while you are conscious.',
+    auraofcourage:'You and nearby allies gain protection against being frightened while inside your aura.',
+    favoredenemyhuntersmark:'Gain enhanced use of Hunter’s Mark/Favored Enemy style tracking and damage tools depending on rules version.',
+    metamagic:'Choose Metamagic options that modify spells using Sorcery Points. Track each option and cost.',
+    fontofmagic:'Convert Sorcery Points and spell slots according to your class rules. This is the core Sorcerer resource engine.',
+    pactmagic:'Warlock spell slots are few but refresh separately and are cast at a scaling slot level. Track pact slots apart from normal spell slots.',
+    eldritchinvocations:'Choose invocation upgrades that grant passive powers, spells, pact improvements, or Eldritch Blast modifiers.',
+    mysticarcanum:'Gain high-level Warlock spells usable without normal spell slots. Track each arcanum separately.',
+    arcanerecovery:'Recover some expended spell slots after a rest, up to the class limit. Track which slots were restored.',
+    scholar:'Gain a Wizard scholarly benefit or expertise-style improvement depending on rules version.',
+    memorizespell:'Swap or prepare a spell more flexibly according to the Wizard rules version in use.',
+    modifyspell:'Alter a prepared spell through Wizard experimentation. Track the spell changed and the mechanical alteration allowed by your table.',
+    spellmastery:'Choose low-level Wizard spells you can cast repeatedly without expending normal slots, within the feature limits.',
+    signaturespells:'Choose signature Wizard spells that are always prepared and can be cast with special recovery rules.',
+    infuseitem:'Create magical infusions and maintain a limited number of infused items. Track known infusions and active infused items.',
+    flasofgenius:'Use your reaction to add Intelligence-based help to a check or save nearby. Track uses.'
+  };
+  function fkey(name){return String(name||'').toLowerCase().replace(/[^a-z0-9]+/g,'');}
+  function detailFor(name,entry,kind){
+    const key=fkey(name.replace(/^Next\s+L\d+:\s*/i,''));
+    if(MECH[key])return MECH[key];
+    if(/subclass/i.test(name)||kind==='subclass')return `${entry.subclass||'Subclass'} features come from your subclass progression. Use the feature buttons above to track when the subclass grants new mechanical options, resources, spell lists, or passive benefits. Add exact table-specific notes in the themed text boxes below.`;
+    if(/asi|feat/i.test(name))return 'Choose an Ability Score Improvement or feat when this class reaches the listed level. Record the chosen feat/ASI and update affected stats, saves, skills, attacks, or spell DCs.';
+    if(/epic boon/i.test(name))return 'At high level, choose an Epic Boon or capstone benefit. Record the chosen option and any resource or passive effect it grants.';
+    return `${name} is granted by ${entry.className||'this class'} at the listed class level. Track its action cost, uses, recharge timing, save DC, dice, and scaling here so it is ready during play.`;
+  }
+  function getEntries(){
+    const st=typeof characterState!=='undefined'?characterState:null;if(!st)return[];const out=[];
+    if(st.className)out.push({className:st.className,subclass:st.subclass,level:Number(st.level)||1,primary:true});
+    (Array.isArray(st.multiclasses)?st.multiclasses:[]).forEach(e=>{if(e?.className)out.push({className:e.className,subclass:e.subclass,level:Number(e.level)||1,primary:false});});
+    return out;
+  }
+  function featureTableFor(cls){try{return CLASS_FEATURES_V127?.[norm(cls)]||CLASS_FEATURES_V127?.[fkey(cls)]||[];}catch(_){return[];}}
+  function subclassMilestones(entry){const cls=norm(entry.className);let levels=[3,6,10,14];if(cls==='cleric')levels=[1,3,6,10,14,17];if(cls==='wizard')levels=[2,3,6,10,14];if(cls==='sorcerer')levels=[1,3,6,14,18];if(cls==='warlock')levels=[1,3,6,10,14];return levels.filter(l=>l<=Number(entry.level||1)+4).map(l=>[l,`${entry.subclass||'Subclass'} Feature`]);}
+  function card(entry,index){
+    const kind=(window.deckV129ClassKind?.[index])||'class';
+    const table=kind==='subclass'?subclassMilestones(entry):featureTableFor(entry.className);
+    const items=(table||[]).filter(([lvl])=>Number(lvl)<=Number(entry.level||1)).map(([lvl,name],i)=>({lvl,name,id:`${index}-${kind}-${i}-${fkey(name)}`,locked:false}));
+    const next=(table||[]).find(([lvl])=>Number(lvl)>Number(entry.level||1));
+    if(next)items.push({lvl:next[0],name:`Next L${next[0]}: ${next[1]}`,realName:next[1],id:`${index}-${kind}-next-${fkey(next[1])}`,locked:true});
+    if(!items.length)items.push({lvl:Number(entry.level)||1,name:kind==='subclass'?'Subclass Features':'Class Features',id:`${index}-${kind}-basic`});
+    window.deckV129FeatureTabs=window.deckV129FeatureTabs||{};const activeId=window.deckV129FeatureTabs[index]||items[0].id;const active=items.find(i=>i.id===activeId)||items[0];const title=(active.realName||active.name).replace(/^Next\s+L\d+:\s*/i,'');
+    return `<article class="deck-v129-class-card" data-v129-class-card="${index}"><div class="deck-v129-class-switch"><button type="button" class="${kind==='class'?'is-active':''}" data-v129-class-kind="class" data-v129-class-entry="${index}"><span><strong>${esc(entry.className||'Class')}</strong><small>${entry.primary?'Main class':'Multiclass'} · Level ${esc(entry.level||1)}</small></span></button><button type="button" class="${kind==='subclass'?'is-active':''}" data-v129-class-kind="subclass" data-v129-class-entry="${index}"><span><strong>${esc(entry.subclass||'Subclass')}</strong><small>${entry.subclass?'Subclass progression':'Choose subclass to track subclass features'}</small></span></button></div><div class="deck-v129-feature-tabs">${items.map(item=>`<button type="button" class="deck-v129-feature-tab ${item.id===active.id?'is-active':''} ${item.locked?'deck-v127-feature-tab--next':''}" data-v129-feature-entry="${index}" data-v129-feature-tab="${esc(item.id)}">${esc(item.name)}</button>`).join('')}</div><div class="deck-v129-feature-detail"><small>${active.locked?`Unlocks at level ${active.lvl}`:`${kind==='class'?'Class':'Subclass'} level ${active.lvl}`}</small><h5>${esc(title)}</h5><p>${esc(detailFor(title,entry,kind))}</p></div></article>`;
+  }
+  function enhanceClassProgressionV129(){
+    const sheet=document.getElementById('characterSheet'); if(!sheet)return;
+    const section=[...sheet.querySelectorAll('.character-feature-section-v96')].find(el=>/Class Progression/i.test(el.querySelector('h4')?.textContent||''));
+    const grid=section?.querySelector('.character-feature-class-grid-v96'); if(!grid)return;
+    const entries=getEntries(); if(!entries.length)return;
+    grid.classList.add('deck-v129-class-progression');
+    grid.innerHTML=entries.map(card).join('');
+  }
+  document.addEventListener('click',e=>{
+    const kind=e.target.closest?.('[data-v129-class-kind]');
+    if(kind){e.preventDefault();e.stopPropagation();window.deckV129ClassKind=window.deckV129ClassKind||{};window.deckV129ClassKind[kind.dataset.v129ClassEntry]=kind.dataset.v129ClassKind;window.deckV129FeatureTabs=window.deckV129FeatureTabs||{};delete window.deckV129FeatureTabs[kind.dataset.v129ClassEntry];enhanceClassProgressionV129();return;}
+    const tab=e.target.closest?.('[data-v129-feature-tab]');
+    if(tab){e.preventDefault();e.stopPropagation();window.deckV129FeatureTabs=window.deckV129FeatureTabs||{};window.deckV129FeatureTabs[tab.dataset.v129FeatureEntry]=tab.dataset.v129FeatureTab;enhanceClassProgressionV129();return;}
+  },true);
+
+  /* Improve subclass spell grants with common missing subclasses/domains/oaths/patrons. */
+  const EXTRA_GRANTS={
+    'tempest domain':[[1,1,'Fog Cloud'],[1,1,'Thunderwave'],[2,3,'Gust of Wind'],[2,3,'Shatter'],[3,5,'Call Lightning'],[3,5,'Sleet Storm'],[4,7,'Control Water'],[4,7,'Ice Storm'],[5,9,'Destructive Wave'],[5,9,'Insect Plague']],
+    'nature domain':[[1,1,'Animal Friendship'],[1,1,'Speak with Animals'],[2,3,'Barkskin'],[2,3,'Spike Growth'],[3,5,'Plant Growth'],[3,5,'Wind Wall'],[4,7,'Dominate Beast'],[4,7,'Grasping Vine'],[5,9,'Insect Plague'],[5,9,'Tree Stride']],
+    'knowledge domain':[[1,1,'Command'],[1,1,'Identify'],[2,3,'Augury'],[2,3,'Suggestion'],[3,5,'Nondetection'],[3,5,'Speak with Dead'],[4,7,'Arcane Eye'],[4,7,'Confusion'],[5,9,'Legend Lore'],[5,9,'Scrying']],
+    'grave domain':[[1,1,'Bane'],[1,1,'False Life'],[2,3,'Gentle Repose'],[2,3,'Ray of Enfeeblement'],[3,5,'Revivify'],[3,5,'Vampiric Touch'],[4,7,'Blight'],[4,7,'Death Ward'],[5,9,'Antilife Shell'],[5,9,'Raise Dead']],
+    'forge domain':[[1,1,'Identify'],[1,1,'Searing Smite'],[2,3,'Heat Metal'],[2,3,'Magic Weapon'],[3,5,'Elemental Weapon'],[3,5,'Protection from Energy'],[4,7,'Fabricate'],[4,7,'Wall of Fire'],[5,9,'Animate Objects'],[5,9,'Creation']],
+    'oathbreaker':[[1,3,'Hellish Rebuke'],[1,3,'Inflict Wounds'],[2,5,'Crown of Madness'],[2,5,'Darkness'],[3,9,'Animate Dead'],[3,9,'Bestow Curse'],[4,13,'Blight'],[4,13,'Confusion'],[5,17,'Contagion'],[5,17,'Dominate Person']],
+    'oath of conquest':[[1,3,'Armor of Agathys'],[1,3,'Command'],[2,5,'Hold Person'],[2,5,'Spiritual Weapon'],[3,9,'Bestow Curse'],[3,9,'Fear'],[4,13,'Dominate Beast'],[4,13,'Stoneskin'],[5,17,'Cloudkill'],[5,17,'Dominate Person']],
+    'oath of redemption':[[1,3,'Sanctuary'],[1,3,'Sleep'],[2,5,'Calm Emotions'],[2,5,'Hold Person'],[3,9,'Counterspell'],[3,9,'Hypnotic Pattern'],[4,13,'Otiluke’s Resilient Sphere'],[4,13,'Stoneskin'],[5,17,'Hold Monster'],[5,17,'Wall of Force']],
+    'divine soul':[[1,1,'Bless'],[1,1,'Cure Wounds']],
+    'shadow magic':[[2,3,'Darkness']],
+    'draconic sorcery':[], 'wild magic':[], 'storm sorcery':[],
+    'hexblade patron':[[1,1,'Shield'],[1,1,'Wrathful Smite'],[2,3,'Blur'],[2,3,'Branding Smite'],[3,5,'Blink'],[3,5,'Elemental Weapon'],[4,7,'Phantasmal Killer'],[4,7,'Staggering Smite'],[5,9,'Banishing Smite'],[5,9,'Cone of Cold']],
+    'undead patron':[[1,1,'Bane'],[1,1,'False Life'],[2,3,'Blindness/Deafness'],[2,3,'Phantasmal Force'],[3,5,'Phantom Steed'],[3,5,'Speak with Dead'],[4,7,'Death Ward'],[4,7,'Greater Invisibility'],[5,9,'Antilife Shell'],[5,9,'Cloudkill']],
+    'genie patron':[[1,1,'Detect Evil and Good'],[2,3,'Phantasmal Force'],[3,5,'Create Food and Water'],[4,7,'Phantasmal Killer'],[5,9,'Creation']],
+    'horizon walker':[[1,3,'Protection from Evil and Good'],[2,5,'Misty Step'],[3,9,'Haste'],[4,13,'Banishment'],[5,17,'Teleportation Circle']],
+    'monster slayer':[[1,3,'Protection from Evil and Good'],[2,5,'Zone of Truth'],[3,9,'Magic Circle'],[4,13,'Banishment'],[5,17,'Hold Monster']],
+    'swarmkeeper':[[1,3,'Faerie Fire'],[2,5,'Web'],[3,9,'Gaseous Form'],[4,13,'Arcane Eye'],[5,17,'Insect Plague']]
+  };
+  try{if(typeof CHARACTER_SUBCLASS_GRANTED_SPELLS_V577!=='undefined'){Object.entries(EXTRA_GRANTS).forEach(([k,rows])=>{if(!CHARACTER_SUBCLASS_GRANTED_SPELLS_V577[k])CHARACTER_SUBCLASS_GRANTED_SPELLS_V577[k]=rows.map(([level,unlock,spell])=>({level,unlock,spell}));});}}catch(_){}
+  const prevGrant=typeof getCharacterAutoGrantedSpellsV577==='function'?getCharacterAutoGrantedSpellsV577:null;
+  if(prevGrant&&!prevGrant.__deckV129){
+    const wrapped=function(){
+      const base=prevGrant.apply(this,arguments)||[];const out=[...base];const seen=new Set(base.map(g=>`${norm(g.source||'')}|${norm(g.spell)}|${g.level}`));
+      const entries=typeof getCharacterSpellcastingEntriesV573==='function'?getCharacterSpellcastingEntriesV573():[];
+      entries.forEach(entry=>{const sub=norm(entry.subclass||'');const classLevel=Math.max(1,Math.min(20,Number(entry.level)||1));Object.entries(EXTRA_GRANTS).forEach(([key,rows])=>{if(!sub.includes(norm(key)))return;rows.forEach(([level,unlock,spell])=>{if(classLevel>=unlock){const id=`${norm(entry.subclass||key)}|${norm(spell)}|${level}`;if(!seen.has(id)){seen.add(id);out.push({level,unlock,spell,source:entry.subclass||key,className:entry.className||''});}}});});});
+      return out;
+    };
+    wrapped.__deckV129=true;
+    try{getCharacterAutoGrantedSpellsV577=wrapped;window.getCharacterAutoGrantedSpellsV577=wrapped;}catch(_){window.getCharacterAutoGrantedSpellsV577=wrapped;}
+  }
+
+  function markDedicatedDiceTray(){
+    const ov=document.getElementById('characterDiceTrayV102'); if(!ov)return;
+    const title=ov.querySelector('[data-v102-title]')?.textContent||'';
+    ov.classList.toggle('deck-v129-dedicated-roll',/roll max hp|roll hit dice/i.test(title));
+  }
+  new MutationObserver(markDedicatedDiceTray).observe(document.documentElement,{childList:true,subtree:true,characterData:true});
+  setInterval(()=>{if(!document.hidden)markDedicatedDiceTray();},1000);
+
+  function boot(){
+    try{if(page()==='war'){normalizeWarTiers();safeRenderWar();}}catch(_){}
+    renderWarTopMenuSoon();
+    try{enhanceClassProgressionV129();}catch(_){}
+  }
+  const prevRenderChar=typeof renderCharacterCreator==='function'?renderCharacterCreator:null;
+  if(prevRenderChar&&!prevRenderChar.__deckV129){
+    const wrapped=function(){const out=prevRenderChar.apply(this,arguments);setTimeout(()=>{try{enhanceClassProgressionV129();}catch(_){}},0);return out;};
+    wrapped.__deckV129=true;
+    try{renderCharacterCreator=wrapped;window.renderCharacterCreator=wrapped;}catch(_){window.renderCharacterCreator=wrapped;}
+  }
+  document.addEventListener('change',e=>{if(e.target.closest?.('#characterSheet'))setTimeout(()=>{try{enhanceClassProgressionV129();}catch(_){}},0);},true);
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(boot,0));else setTimeout(boot,0);
+})();
