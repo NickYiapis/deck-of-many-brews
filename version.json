@@ -1,7 +1,7 @@
 {
-  "version": "v130",
+  "version": "v134",
   "dataVersion": 1,
   "releasedAt": "2026-06-20T00:00:00+03:00",
   "updatePolicy": "prompt",
-  "notes": "Fixes repeated update prompts by synchronizing the app runtime version, service worker cache version, and version.json metadata. No feature behavior changes."
+  "notes": "Cleans dedicated HP/Hit Dice roll windows and improves subclass spell auto-grants with broader subclass aliases and missing spell-list subclasses."
 }

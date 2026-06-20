@@ -14590,3 +14590,8 @@ body {
 .hbc-update-actions button {
   min-width: 100px;
 }
+
+/* Deck of Many Brews v134: dedicated HP/Hit Dice dice tray cleanup */
+#characterDiceTrayV102.deck-v134-dedicated-roll .character-dice-presets-v114,
+#characterDiceTrayV102.deck-v134-dedicated-roll #characterDicePresetsV114{display:none!important;}
+#characterDiceTrayV102.deck-v134-dedicated-roll .character-dice-tray-v102__explain{margin-bottom:12px;}
