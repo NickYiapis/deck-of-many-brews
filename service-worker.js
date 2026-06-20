@@ -1,5 +1,5 @@
 /* Deck of Many Brews service worker - safe refresh/offline cache */
-const APP_VERSION = 'v123';
+const APP_VERSION = 'v126';
 const CACHE_PREFIX = 'homebrew-compendium-';
 const CACHE_NAME = `${CACHE_PREFIX}${APP_VERSION}`;
 
@@ -96,6 +96,15 @@ async function networkFirst(request, cacheKey = request) {
   }
 }
 
+
+async function cacheFirst(request, cacheKey = request) {
+  const cache = await caches.open(CACHE_NAME);
+  const cached = await cache.match(cacheKey, { ignoreSearch: true }) || await cache.match(request, { ignoreSearch: true });
+  if (cached) return cached;
+  const response = await fetch(request);
+  return putIfOk(cache, cacheKey, response);
+}
+
 async function staleWhileRevalidate(request, cacheKey = request) {
   const cache = await caches.open(CACHE_NAME);
   const cached = await cache.match(cacheKey, { ignoreSearch: true }) || await cache.match(request, { ignoreSearch: true });
@@ -130,7 +139,7 @@ self.addEventListener('fetch', event => {
 
   const shellKey = shellCacheKey(url);
   if (shellKey) {
-    event.respondWith(staleWhileRevalidate(request, shellKey));
+    event.respondWith(cacheFirst(request, shellKey));
     return;
   }
 

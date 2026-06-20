@@ -14874,10 +14874,10 @@ document.head.append(V81_STYLE);
     }
     if(!menuPoll){
       menuPoll=setInterval(()=>{
-        if(!isMobile()) return;
+        if(document.hidden || !isMobile()) return;
         const m=document.getElementById('mobileSectionMenuV109');
         if(m?.classList.contains('is-open')) patchMenuNow();
-      }, 180);
+      }, 1200);
     }
   }
   function boot(){ observeMenu(); schedulePatch(); }
@@ -15279,7 +15279,7 @@ document.head.append(V81_STYLE);
   function schedule(){ [0,60,160,360].forEach(ms=>setTimeout(renderWarMobileMenu,ms)); }
   document.addEventListener('click', e=>{ if(e.target.closest?.('.v109-mobile-menu__button,#navWarTactics,[data-deck-war-mode],[data-deck-war-tier],#topPageMenu button,.top-page-picker__option')) schedule(); }, true);
   document.addEventListener('pointerup', e=>{ if(e.target.closest?.('.v109-mobile-menu__button')) schedule(); }, true);
-  const boot=()=>{ schedule(); setInterval(()=>{ const m=document.getElementById('mobileSectionMenuV109'); if(m?.classList.contains('is-open') && currentPage()==='war') renderWarMobileMenu(); }, 350); };
+  const boot=()=>{ schedule(); setInterval(()=>{ if(document.hidden) return; const m=document.getElementById('mobileSectionMenuV109'); if(m?.classList.contains('is-open') && currentPage()==='war') renderWarMobileMenu(); }, 1200); };
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', boot); else boot();
 })();
 
@@ -15287,7 +15287,7 @@ document.head.append(V81_STYLE);
 /* ===== Deck of Many Brews v123: corrected War filters/cards + condition name colors ===== */
 (function(){
   'use strict';
-  const V = 'v123';
+  const V = 'v126';
   window.HOMEBREW_COMPENDIUM_VERSION = V;
   function h(value){ return typeof escapeHTML === 'function' ? escapeHTML(value) : String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
   function roman(value){ return Number(value) === 1 ? 'I' : Number(value) === 2 ? 'II' : 'III'; }
@@ -15296,7 +15296,7 @@ document.head.append(V81_STYLE);
       state.warContentMode = ['all','paths','tactics'].includes(state.warContentMode) ? state.warContentMode : 'all';
       if (!Array.isArray(state.warTierFilters)) state.warTierFilters = ['1','2','3'];
       state.warTierFilters = [...new Set(state.warTierFilters.map(String).filter(v => ['1','2','3'].includes(v)))];
-      if (!state.warTierFilters.length) state.warTierFilters = [];
+      if (!state.warTierFilters.length) state.warTierFilters = ['1'];
     } catch (_) {}
   }
   function tierPasses(tactic){
@@ -15478,6 +15478,7 @@ document.head.append(V81_STYLE);
       const set = new Set((state.warTierFilters || []).map(String));
       if (set.has(t)) set.delete(t); else set.add(t);
       state.warTierFilters = [...set].sort((a,b)=>Number(a)-Number(b));
+      if (!state.warTierFilters.length) state.warTierFilters = ['1'];
     } else if (btn.dataset.deckV123Mode) {
       state.warContentMode = btn.dataset.deckV123Mode;
     } else if (btn.dataset.deckV123Type) {
@@ -15516,16 +15517,185 @@ document.head.append(V81_STYLE);
     content.innerHTML = `<div class="deck-v123-war-menu">${tierHtml}${showHtml}${typeHtml}</div>`;
   }
   document.addEventListener('click', e => { if (e.target.closest?.('.v109-mobile-menu__button,#navWarTactics,#topPageMenu button,.top-page-picker__option')) setTimeout(renderWarMobileMenuV123, 80); }, true);
-  setInterval(() => { const m = document.getElementById('mobileSectionMenuV109'); if (m?.classList.contains('is-open') && currentPage() === 'war') renderWarMobileMenuV123(); }, 500);
+  setInterval(() => { if (document.hidden) return; const m = document.getElementById('mobileSectionMenuV109'); if (m?.classList.contains('is-open') && currentPage() === 'war') renderWarMobileMenuV123(); }, 1400);
 
-  const boot = () => { try { ensureWarFilterState(); renderCategoryFilters(); if ((activePage || document.body.dataset.v109Page) === 'war') renderTree(); } catch(err){ console.error('Deck v123 patch failed', err); } };
+  const boot = () => { try { ensureWarFilterState(); renderCategoryFilters(); if ((activePage || document.body.dataset.v109Page) === 'war') renderTree(); } catch(err){ console.error('Deck v124 previous patch failed', err); } };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => setTimeout(boot,0)); else setTimeout(boot,0);
+})();
+
+
+/* ===== Deck of Many Brews v124: mobile-only War menu/tier fixes + mobile character roller polish ===== */
+(function(){
+  'use strict';
+  const V = 'v124';
+  window.HOMEBREW_COMPENDIUM_VERSION = V;
+  const mq = typeof window.matchMedia === 'function' ? window.matchMedia('(max-width: 820px)') : { matches:false };
+  const isMobile = () => !!mq.matches;
+  function h(value){ return typeof escapeHTML === 'function' ? escapeHTML(value) : String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+  function roman(value){ return Number(value) === 1 ? 'I' : Number(value) === 2 ? 'II' : 'III'; }
+  function page(){ try { return activePage || document.body.dataset.v109Page || ''; } catch(_) { return document.body.dataset.v109Page || ''; } }
+  function normalizeWarTiers(){
+    try {
+      if (!Array.isArray(state.warTierFilters)) state.warTierFilters = ['1'];
+      state.warTierFilters = [...new Set(state.warTierFilters.map(String).filter(v => ['1','2','3'].includes(v)))].sort((a,b)=>Number(a)-Number(b));
+      if (!state.warTierFilters.length) state.warTierFilters = ['1'];
+    } catch(_) {}
+  }
+
+  const style = document.createElement('style');
+  style.id = 'deckV124MobileStyle';
+  style.textContent = `
+    @media (max-width: 820px){
+      /* War: on-page top control keeps only the tier row; Show/Types live in the top-left mobile menu. */
+      #warTacticsPage .deck-v123-war-filter-panel .deck-v123-filter-row:not(:first-child){display:none!important;}
+      #warTacticsPage .deck-v123-war-filter-panel{position:sticky;top:calc(env(safe-area-inset-top,0px) + 54px);z-index:34;margin-bottom:10px!important;}
+      #warTacticsPage .deck-v123-filter-row:first-child{display:flex!important;flex-wrap:nowrap!important;overflow-x:auto!important;gap:8px!important;padding-bottom:2px;scrollbar-width:thin;}
+      #warTacticsPage .deck-v123-filter-row:first-child .deck-v123-filter-label{flex:0 0 auto!important;min-width:auto!important;padding-right:2px;align-self:center;}
+      #warTacticsPage .deck-v123-filter-row:first-child .deck-v123-chip{flex:0 0 auto!important;}
+      #warTacticsPage .paths-list,#warTacticsPage .deck-v123-paths-list{width:100%!important;max-width:100%!important;overflow:visible!important;min-width:0!important;}
+      #warTacticsPage .path-row.deck-v123-path-row{width:100%!important;max-width:100%!important;min-width:0!important;overflow:visible!important;box-sizing:border-box!important;}
+      #warTacticsPage .deck-v123-path-cards{width:100%!important;max-width:100%!important;min-width:0!important;overflow-x:auto!important;overflow-y:hidden!important;-webkit-overflow-scrolling:touch!important;display:flex!important;flex-wrap:nowrap!important;}
+      #warTacticsPage .path-slot{flex:0 0 min(78vw,292px)!important;min-width:min(78vw,292px)!important;max-width:min(78vw,292px)!important;}
+      #warTacticsPage .standalone-grid{width:100%!important;max-width:100%!important;min-width:0!important;overflow-x:auto!important;-webkit-overflow-scrolling:touch!important;display:flex!important;flex-wrap:nowrap!important;}
+      #warTacticsPage .standalone-column{flex:0 0 min(82vw,300px)!important;min-width:min(82vw,300px)!important;max-width:min(82vw,300px)!important;}
+      #mobileSectionMenuV109 .deck-v124-war-menu{display:grid;gap:10px;}
+      #mobileSectionMenuV109 .deck-v124-war-menu .v109-menu-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;}
+      #mobileSectionMenuV109 .deck-v124-war-menu .v109-menu-grid--types{grid-template-columns:repeat(2,minmax(0,1fr))!important;}
+      #mobileSectionMenuV109 .deck-v124-war-menu .v109-menu-option{min-height:38px!important;padding:7px 6px!important;border-radius:12px!important;}
+      #mobileSectionMenuV109 .deck-v124-war-menu .v109-menu-option span{font-size:.78rem!important;}
+
+      /* Conditions: no visible tag chips on mobile cards. */
+      #conditionsPage .condition-card .condition-tag-row,
+      #conditionsPage .condition-card .condition-tag,
+      #conditionsPage .condition-card .gear-tag,
+      #conditionsPage .condition-card .card-hierarchy-row{display:none!important;}
+
+      /* Character sheet: no sheet-section dropdown on mobile; mobile shows the full sheet. */
+      #characterSheet .character-chapter-picker-v83,
+      #characterSheet .character-chapter-picker-v82{display:none!important;}
+      #characterSheet .character-chapter-section-v83[hidden],
+      #characterSheet .character-chapter-section-v82[hidden]{display:block!important;}
+
+      .deck-v124-stat-page{position:fixed;inset:0;z-index:2147483200;background:linear-gradient(145deg,rgba(13,10,24,.98),rgba(4,8,18,.98));color:#f8f1ff;display:flex;flex-direction:column;padding:max(14px,env(safe-area-inset-top,0px)) 14px max(16px,env(safe-area-inset-bottom,0px));overflow:auto;}
+      .deck-v124-stat-page__head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;margin-bottom:12px;}
+      .deck-v124-stat-page__head h2{margin:0;color:#fff0c8;font-size:1.18rem;letter-spacing:.04em;}
+      .deck-v124-stat-page__head p{margin:5px 0 0;color:rgba(238,232,255,.74);font-size:.86rem;line-height:1.35;}
+      .deck-v124-stat-close{width:38px;height:38px;border-radius:999px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.06);color:#fff;font-size:1.25rem;}
+      .deck-v124-stat-controls{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;}
+      .deck-v124-stat-controls label{display:grid;gap:5px;font-weight:900;color:#dcd4ff;font-size:.78rem;}
+      .deck-v124-stat-controls input{min-height:42px;border-radius:14px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.06);color:#fff;padding:0 10px;font-weight:900;}
+      .deck-v124-stat-actions{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;}
+      .deck-v124-stat-results{display:grid;gap:10px;}
+      .deck-v124-stat-card{border:1px solid rgba(255,255,255,.12);border-radius:18px;background:rgba(255,255,255,.045);padding:12px;box-shadow:inset 0 1px 0 rgba(255,255,255,.05);}
+      .deck-v124-stat-card strong{display:block;color:#fff0c8;font-size:1.55rem;margin-bottom:4px;}
+      .deck-v124-stat-card span{display:block;color:rgba(238,232,255,.76);font-size:.83rem;line-height:1.35;}
+    }
+  `;
+  document.head.appendChild(style);
+
+  function option(label, attrs, active){ return `<button type="button" class="v109-menu-option ${active?'is-active':''}" ${attrs}><span>${h(label)}</span></button>`; }
+  function group(title, html, extra=''){ return `<div class="v109-menu-group"><div class="v109-menu-group__title">${h(title)}</div><div class="v109-menu-grid ${extra}">${html}</div></div>`; }
+  function renderWarMobileMenuV124(){
+    if (!isMobile()) return;
+    const menu = document.getElementById('mobileSectionMenuV109');
+    const content = menu?.querySelector('.v109-mobile-menu__content');
+    if (!content || !menu.classList.contains('is-open') || page() !== 'war') return;
+    normalizeWarTiers();
+    try { state.warContentMode = ['all','paths','tactics'].includes(state.warContentMode) ? state.warContentMode : 'all'; } catch(_) {}
+    const mode = state.warContentMode || 'all';
+    const showHtml = group('Show', ['all','paths','tactics'].map(m => option(m === 'all' ? 'All' : m === 'paths' ? 'Paths' : 'Tactics', `data-deck-v123-mode="${m}"`, mode === m)).join(''));
+    const typeHtml = group('Types', [`<button type="button" class="v109-menu-option ${(!activeFilters || activeFilters.size===0)?'is-active':''}" data-deck-v123-type="all"><span>All Types</span></button>`].concat(categories.map(cat => option(cat.label, `data-deck-v123-type="${h(cat.id)}"`, activeFilters?.has(cat.id)))).join(''), 'v109-menu-grid--types');
+    content.innerHTML = `<div class="deck-v124-war-menu">${showHtml}${typeHtml}</div>`;
+  }
+
+  const refreshWarMenu = () => setTimeout(renderWarMobileMenuV124, 0);
+  document.addEventListener('click', event => {
+    const btn = event.target.closest?.('[data-deck-v123-tier],[data-deck-v123-mode],[data-deck-v123-type]');
+    if (btn?.dataset.deckV123Tier) {
+      setTimeout(() => {
+        normalizeWarTiers();
+        try { if (typeof save === 'function') save(); if (typeof renderCategoryFilters === 'function') renderCategoryFilters(); if (typeof renderTree === 'function') renderTree(); } catch(_) {}
+      }, 0);
+    }
+    if (btn?.dataset.deckV123Mode || btn?.dataset.deckV123Type) {
+      setTimeout(renderWarMobileMenuV124, 0);
+    }
+    if (event.target.closest?.('.v109-mobile-menu__button,#navWarTactics,#topPageMenu button,.top-page-picker__option')) setTimeout(renderWarMobileMenuV124, 90);
+  }, true);
+  setInterval(() => { if (!document.hidden && isMobile()) renderWarMobileMenuV124(); }, 1600);
+
+  function unhideMobileCharacterSections(){
+    if (!isMobile()) return;
+    const sheet = document.getElementById('characterSheet');
+    if (!sheet) return;
+    sheet.querySelectorAll('.character-chapter-section-v83[hidden],.character-chapter-section-v82[hidden]').forEach(el => { try { el.hidden = false; } catch(_) {} });
+  }
+  const characterObserver = new MutationObserver(() => unhideMobileCharacterSections());
+  const bootCharacter = () => {
+    const sheet = document.getElementById('characterSheet');
+    if (sheet) characterObserver.observe(sheet, { childList:true, subtree:false });
+    unhideMobileCharacterSections();
+  };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bootCharacter); else setTimeout(bootCharacter, 0);
+
+  function d6(){ return Math.floor(Math.random()*6)+1; }
+  function rollStats(statCount, diceCount){
+    const stats = Math.max(1, Math.min(12, Number(statCount)||6));
+    const dice = Math.max(3, Math.min(10, Number(diceCount)||4));
+    return Array.from({length:stats}, (_,i)=>{
+      const rolls = Array.from({length:dice}, d6);
+      const kept = [...rolls].sort((a,b)=>b-a).slice(0,3);
+      return { index:i+1, rolls, kept, total:kept.reduce((a,b)=>a+b,0) };
+    });
+  }
+  function renderStatResults(target, rolls){
+    if (!target) return;
+    target.innerHTML = rolls.map(r => `<article class="deck-v124-stat-card"><strong>${r.total}</strong><span>Stat ${r.index}: rolled ${r.rolls.join(' · ')}</span><span>Kept best 3: ${r.kept.join(' · ')}</span></article>`).join('');
+  }
+  function openMobileStatRollPage(){
+    const old = document.getElementById('deckV124StatPage');
+    if (old) old.remove();
+    const cfg = characterState?.statRollConfig || { stats:6, dice:4 };
+    const page = document.createElement('div');
+    page.id = 'deckV124StatPage';
+    page.className = 'deck-v124-stat-page';
+    page.innerHTML = `<div class="deck-v124-stat-page__head"><div><h2>Roll Ability Scores</h2><p>Choose how many ability scores to roll and how many d6s each score uses. Each score keeps the best 3 dice, so the default is 6 scores rolled as 4d6, keep highest 3.</p></div><button type="button" class="deck-v124-stat-close" data-v124-stat-close>×</button></div><div class="deck-v124-stat-controls"><label>Stats to Roll<input id="deckV124StatCount" type="number" min="1" max="12" value="${h(cfg.stats||6)}"></label><label>Dice per Stat<input id="deckV124DiceCount" type="number" min="3" max="10" value="${h(cfg.dice||4)}"></label></div><div class="deck-v124-stat-actions"><button class="button" type="button" data-v124-roll-stats>Roll Again</button><button class="button button--ghost" type="button" data-v124-apply-stats>Apply First 6</button></div><div class="deck-v124-stat-results" id="deckV124StatResults"></div>`;
+    document.body.appendChild(page);
+    let rolls = [];
+    const doRoll = () => {
+      const stats = Math.max(1, Math.min(12, Number(page.querySelector('#deckV124StatCount')?.value)||6));
+      const dice = Math.max(3, Math.min(10, Number(page.querySelector('#deckV124DiceCount')?.value)||4));
+      rolls = rollStats(stats, dice);
+      if (characterState) { characterState.statRollConfig = { stats, dice }; characterState.lastStatRolls = rolls; try { saveCharacterState(); } catch(_) {} }
+      renderStatResults(page.querySelector('#deckV124StatResults'), rolls);
+    };
+    page.querySelector('[data-v124-stat-close]')?.addEventListener('click', () => page.remove());
+    page.querySelector('[data-v124-roll-stats]')?.addEventListener('click', doRoll);
+    page.querySelector('[data-v124-apply-stats]')?.addEventListener('click', () => {
+      if (!characterState || rolls.length < 6) { try { showToast('Roll at least 6 stats before applying.'); } catch(_) {} return; }
+      const abilities = typeof CHARACTER_ABILITIES !== 'undefined' ? CHARACTER_ABILITIES : [];
+      abilities.forEach((ability, index) => { if (rolls[index]) characterState.abilities[ability.key] = rolls[index].total; });
+      try { saveCharacterState(); renderCharacterCreator(); } catch(_) {}
+      page.remove();
+      try { showToast('Stats applied in STR, DEX, CON, INT, WIS, CHA order.'); } catch(_) {}
+    });
+    doRoll();
+  }
+  document.addEventListener('click', event => {
+    const btn = event.target.closest?.('#characterStatRollerButton');
+    if (!btn || !isMobile()) return;
+    event.preventDefault(); event.stopPropagation(); if (event.stopImmediatePropagation) event.stopImmediatePropagation();
+    openMobileStatRollPage();
+  }, true);
+
+  const boot = () => { normalizeWarTiers(); if (page() === 'war') { try { renderCategoryFilters(); renderTree(); } catch(_) {} } unhideMobileCharacterSections(); };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => setTimeout(boot, 0)); else setTimeout(boot, 0);
 })();
 
 /* ===== PWA runtime: version checks, prompt-based updates, and data migrations ===== */
 (function() {
   'use strict';
-  const CURRENT_VERSION = 'v123';
+  const CURRENT_VERSION = 'v126';
   const DATA_VERSION = 1;
   const DATA_VERSION_KEY = 'homebrewCompendium.appDataVersion';
   window.HOMEBREW_COMPENDIUM_VERSION = CURRENT_VERSION;
@@ -15711,4 +15881,308 @@ document.head.append(V81_STYLE);
       }
     });
   }
+})();
+
+/* ===== Deck of Many Brews v126: density cleanup, session sheet, bug polish ===== */
+(function(){
+  'use strict';
+  const V = 'v126';
+  window.HOMEBREW_COMPENDIUM_VERSION = V;
+  const DENSITY_STORE = 'hb-v112-density-mode';
+  function isMobile(){ return window.matchMedia && window.matchMedia('(max-width: 820px)').matches; }
+  function esc(value){ return typeof escapeHTML === 'function' ? escapeHTML(value) : String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+  function signed(value){ const n = Number(value) || 0; return n >= 0 ? `+${n}` : String(n); }
+  function scoreMod(score){ return Math.floor(((Number(score) || 10) - 10) / 2); }
+  function getPb(){ try { return typeof getCharacterProficiencyBonus === 'function' ? getCharacterProficiencyBonus() : 2; } catch(_) { return 2; } }
+  function getAbilityMod(key){ try { return typeof getAbilityModifier === 'function' ? getAbilityModifier(characterState?.abilities?.[key]) : scoreMod(characterState?.abilities?.[key]); } catch(_) { return scoreMod(characterState?.abilities?.[key]); } }
+  function getSkillMod(skill){ try { return typeof getSkillModifier === 'function' ? getSkillModifier(skill) : getAbilityMod(skill.ability); } catch(_) { return getAbilityMod(skill.ability); } }
+  function getLevel(){ return Math.max(1, Number(characterState?.level) || 1); }
+  function isCharacterPage(){ try { return (typeof activePage !== 'undefined' && activePage === 'character') || document.getElementById('characterPage')?.classList.contains('is-active'); } catch(_) { return false; } }
+  function inSessionDensity(){ return document.body.dataset.v112Density === 'session'; }
+  function saveCharacter(){ try { if (typeof saveCharacterState === 'function') saveCharacterState(); } catch(_){} }
+  function notify(text){ try { if (typeof showToast === 'function') showToast(text); else console.log(text); } catch(_){} }
+  function roll(sides){ return Math.floor(Math.random() * sides) + 1; }
+  function rollD20(mod, label){ const die = roll(20); const total = die + (Number(mod) || 0); appendSessionLog(`${label}: d20 ${die} ${signed(mod)} = ${total}`); notify(`${label}: ${total}`); }
+  function appendSessionLog(text){
+    const log = document.getElementById('deckV125SessionLog');
+    if (!log) return;
+    const line = document.createElement('div');
+    line.textContent = `${new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})} · ${text}`;
+    log.prepend(line);
+    while (log.children.length > 8) log.lastElementChild?.remove();
+  }
+  function changeNumberField(key, delta, min, max){
+    if (!characterState) return;
+    const current = Number(characterState[key]) || 0;
+    let next = current + delta;
+    if (typeof min === 'number') next = Math.max(min, next);
+    if (typeof max === 'number') next = Math.min(max, next);
+    characterState[key] = next;
+    saveCharacter();
+    renderSessionPanel();
+    try { if (typeof renderCharacterCreator === 'function' && isCharacterPage()) renderCharacterCreator(); } catch(_){}
+  }
+  function setNumberField(key, value, min, max){
+    if (!characterState) return;
+    let next = Number(value) || 0;
+    if (typeof min === 'number') next = Math.max(min, next);
+    if (typeof max === 'number') next = Math.min(max, next);
+    characterState[key] = next;
+    saveCharacter();
+    renderSessionPanel();
+    try { if (typeof renderCharacterCreator === 'function' && isCharacterPage()) renderCharacterCreator(); } catch(_){}
+  }
+  function rollHitDieMax(){
+    if (!characterState) return;
+    const cls = String(characterState.className || '').split(/[\/,&+]+/).map(s=>s.trim()).find(Boolean) || characterState.className || 'Class';
+    let die = 8;
+    try { if (typeof CHARACTER_HIT_DIE_BY_CLASS !== 'undefined') die = Number(CHARACTER_HIT_DIE_BY_CLASS[cls]) || die; } catch(_) {}
+    const con = getAbilityMod('con');
+    const heal = Math.max(1, die + con);
+    characterState.currentHp = Math.min(Number(characterState.maxHp)||heal, (Number(characterState.currentHp)||0) + heal);
+    saveCharacter(); renderSessionPanel();
+    appendSessionLog(`Hit Die max heal: ${die} ${signed(con)} = ${heal}`);
+    notify(`Healed ${heal} HP`);
+  }
+  function abilityCards(){
+    const abilities = (typeof CHARACTER_ABILITIES !== 'undefined' ? CHARACTER_ABILITIES : [
+      {key:'str', label:'STR'}, {key:'dex', label:'DEX'}, {key:'con', label:'CON'}, {key:'int', label:'INT'}, {key:'wis', label:'WIS'}, {key:'cha', label:'CHA'}
+    ]);
+    return abilities.map(a => {
+      const score = characterState?.abilities?.[a.key] ?? 10;
+      const mod = getAbilityMod(a.key);
+      return `<button type="button" class="deck-v125-ability" data-v125-roll-ability="${esc(a.key)}"><span>${esc(a.label || a.key.toUpperCase())}</span><strong>${esc(score)}</strong><em>${signed(mod)}</em></button>`;
+    }).join('');
+  }
+  function topSkills(){
+    const skills = (typeof CHARACTER_SKILLS !== 'undefined' ? CHARACTER_SKILLS : []).map(skill => ({...skill, mod:getSkillMod(skill)})).sort((a,b)=>b.mod-a.mod).slice(0,8);
+    return skills.map(s => `<button type="button" class="deck-v125-skill" data-v125-roll-skill="${esc(s.name)}"><span>${esc(s.name)}</span><strong>${signed(s.mod)}</strong></button>`).join('') || '<span class="deck-v125-muted">No skills found.</span>';
+  }
+  function saveRows(){
+    const abilities = (typeof CHARACTER_ABILITIES !== 'undefined' ? CHARACTER_ABILITIES : []).map(a => {
+      const proficient = Array.isArray(characterState?.saveProficiencies) && characterState.saveProficiencies.includes(a.key);
+      const mod = getAbilityMod(a.key) + (proficient ? getPb() : 0);
+      return `<button type="button" class="deck-v125-save" data-v125-roll-save="${esc(a.key)}"><span>${esc(a.label || a.key.toUpperCase())}</span><strong>${signed(mod)}</strong></button>`;
+    }).join('');
+    return abilities || '<span class="deck-v125-muted">No saves found.</span>';
+  }
+  function spellSlotText(){
+    try { if (typeof spellSlotSummaryV90 === 'function') return spellSlotSummaryV90(); } catch(_){}
+    const slots = characterState?.spellSlots || {};
+    const rows = Object.entries(slots).filter(([_,v])=>String(v||'').trim()).map(([k,v])=>`L${k}: ${v}`);
+    return rows.join(' · ') || 'No slots tracked';
+  }
+  function renderSessionPanel(){
+    let panel = document.getElementById('deckV125SessionSheet');
+    if (!isCharacterPage() || !inSessionDensity() || !characterState) { panel?.remove(); return; }
+    const page = document.getElementById('characterPage');
+    const sheet = document.getElementById('characterSheet');
+    if (!page || !sheet) return;
+    if (!panel) {
+      panel = document.createElement('section');
+      panel.id = 'deckV125SessionSheet';
+      panel.className = 'deck-v125-session-sheet';
+      sheet.parentNode.insertBefore(panel, sheet);
+    }
+    const currentHp = Number(characterState.currentHp) || 0;
+    const maxHp = Number(characterState.maxHp) || 0;
+    const tempHp = Number(characterState.tempHp) || 0;
+    const ac = characterState.armorClass || 10;
+    const init = getAbilityMod('dex') + (Number(characterState.initiativeBonus) || 0) - (typeof getCharacterExhaustionD20PenaltyV573 === 'function' ? getCharacterExhaustionD20PenaltyV573() : 0);
+    const passive = 10 + getSkillMod({name:'Perception', ability:'wis'});
+    const speedPenalty = typeof getCharacterExhaustionSpeedPenaltyV573 === 'function' ? getCharacterExhaustionSpeedPenaltyV573() : 0;
+    const speed = Math.max(0, (Number(characterState.speed) || 30) - speedPenalty);
+    const deathS = Number(characterState.deathSaveSuccesses) || 0;
+    const deathF = Number(characterState.deathSaveFailures) || 0;
+    const savedLog = panel.querySelector('#deckV125SessionLog')?.innerHTML || '';
+    panel.innerHTML = `
+      <div class="deck-v125-session-head"><div><h2>Session Sheet</h2><p>Fast play view: health, defenses, rolls, resources, spells, notes, and the numbers players need during a live session.</p></div><button class="button button--ghost" type="button" data-v125-session-refresh>Refresh</button></div>
+      <div class="deck-v125-hero-row">
+        <div class="deck-v125-hero"><span>Character</span><strong>${esc(characterState.name || 'Unnamed')}</strong><small>${esc([characterState.className || 'Class', characterState.subclass || '', `Level ${getLevel()}`].filter(Boolean).join(' · '))}</small></div>
+        <button type="button" class="deck-v125-stat" data-v125-roll-init><span>Initiative</span><strong>${signed(init)}</strong></button>
+        <div class="deck-v125-stat"><span>AC</span><strong>${esc(ac)}</strong></div>
+        <div class="deck-v125-stat"><span>Speed</span><strong>${speed} ft.</strong></div>
+        <div class="deck-v125-stat"><span>Passive Perception</span><strong>${passive}</strong></div>
+        <button type="button" class="deck-v125-stat ${characterState.heroicInspiration?'is-on':''}" data-v125-toggle-inspiration><span>Heroic Inspiration</span><strong>${characterState.heroicInspiration?'Ready':'Off'}</strong></button>
+      </div>
+      <div class="deck-v125-session-grid">
+        <section class="deck-v125-box deck-v125-hp"><h3>Health</h3><div class="deck-v125-hp-main"><strong>${currentHp}</strong><span>/ ${maxHp} HP</span><em>${tempHp} Temp</em></div><div class="deck-v125-actions"><button type="button" data-v125-hp="-5">-5</button><button type="button" data-v125-hp="-1">-1</button><button type="button" data-v125-hp="1">+1</button><button type="button" data-v125-hp="5">+5</button><button type="button" data-v125-heal-max>Hit Die Max</button></div><div class="deck-v125-actions"><button type="button" data-v125-temp="-5">Temp -5</button><button type="button" data-v125-temp="5">Temp +5</button><button type="button" data-v125-reset-death>Reset Death Saves</button></div><div class="deck-v125-death"><span>Death Saves</span><button type="button" data-v125-death-s="1">Success ${deathS}/3</button><button type="button" data-v125-death-f="1">Fail ${deathF}/3</button></div></section>
+        <section class="deck-v125-box"><h3>Ability Checks</h3><div class="deck-v125-abilities">${abilityCards()}</div></section>
+        <section class="deck-v125-box"><h3>Saving Throws</h3><div class="deck-v125-saves">${saveRows()}</div></section>
+        <section class="deck-v125-box"><h3>Best Skills</h3><div class="deck-v125-skills">${topSkills()}</div></section>
+        <section class="deck-v125-box"><h3>Combat</h3><div class="deck-v125-actions"><button type="button" data-v125-trigger="#characterRollAttackV82">Roll Attack</button><button type="button" data-v125-trigger="#characterRollDamageV82">Roll Damage</button><button type="button" data-v125-trigger="#characterHitDiceSpendButton">Spend Hit Dice</button></div><p>${esc(characterState.lastAttackRollV82 || 'No attack rolled yet.')}</p><p>${esc(characterState.lastDamageRollV82 || '')}</p></section>
+        <section class="deck-v125-box"><h3>Spellcasting</h3><div class="deck-v125-spell-stats"><span>DC <strong>${esc(typeof getSpellSaveDc === 'function' ? getSpellSaveDc() : '—')}</strong></span><span>Attack <strong>${esc(typeof getSpellAttackBonus === 'function' ? getSpellAttackBonus() : '—')}</strong></span></div><p>${esc(spellSlotText())}</p></section>
+        <section class="deck-v125-box deck-v125-wide"><h3>Session Notes</h3><textarea data-v125-session-note rows="4" placeholder="Tactical reminders, conditions, concentration, loot, NPC names...">${esc(characterState.notesSplit?.session || characterState.notes || '')}</textarea></section>
+        <section class="deck-v125-box deck-v125-wide"><h3>Roll Log</h3><div id="deckV125SessionLog" class="deck-v125-log">${savedLog}</div></section>
+      </div>
+    `;
+  }
+  function bindSessionEvents(){
+    document.addEventListener('click', event => {
+      const root = event.target.closest?.('#deckV125SessionSheet');
+      if (!root) return;
+      const hp = event.target.closest('[data-v125-hp]'); if (hp) { changeNumberField('currentHp', Number(hp.dataset.v125Hp)||0, 0, Number(characterState?.maxHp)||Infinity); return; }
+      const temp = event.target.closest('[data-v125-temp]'); if (temp) { changeNumberField('tempHp', Number(temp.dataset.v125Temp)||0, 0); return; }
+      if (event.target.closest('[data-v125-heal-max]')) { rollHitDieMax(); return; }
+      if (event.target.closest('[data-v125-reset-death]')) { if (characterState) { characterState.deathSaveSuccesses=0; characterState.deathSaveFailures=0; saveCharacter(); renderSessionPanel(); } return; }
+      const ds = event.target.closest('[data-v125-death-s]'); if (ds) { setNumberField('deathSaveSuccesses', Math.min(3,(Number(characterState?.deathSaveSuccesses)||0)+1),0,3); return; }
+      const df = event.target.closest('[data-v125-death-f]'); if (df) { setNumberField('deathSaveFailures', Math.min(3,(Number(characterState?.deathSaveFailures)||0)+1),0,3); return; }
+      if (event.target.closest('[data-v125-toggle-inspiration]')) { characterState.heroicInspiration = !characterState.heroicInspiration; saveCharacter(); renderSessionPanel(); try { renderCharacterCreator(); } catch(_){} return; }
+      if (event.target.closest('[data-v125-roll-init]')) { const mod=getAbilityMod('dex') + (Number(characterState?.initiativeBonus)||0); rollD20(mod, 'Initiative'); return; }
+      const ability = event.target.closest('[data-v125-roll-ability]'); if (ability) { const key=ability.dataset.v125RollAbility; rollD20(getAbilityMod(key), `${key.toUpperCase()} check`); return; }
+      const save = event.target.closest('[data-v125-roll-save]'); if (save) { const key=save.dataset.v125RollSave; const prof=Array.isArray(characterState?.saveProficiencies)&&characterState.saveProficiencies.includes(key); rollD20(getAbilityMod(key)+(prof?getPb():0), `${key.toUpperCase()} save`); return; }
+      const skillBtn = event.target.closest('[data-v125-roll-skill]'); if (skillBtn) { const name=skillBtn.dataset.v125RollSkill; const skill=(typeof CHARACTER_SKILLS!=='undefined'?CHARACTER_SKILLS:[]).find(s=>s.name===name); if(skill) rollD20(getSkillMod(skill), `${name} check`); return; }
+      const trigger = event.target.closest('[data-v125-trigger]'); if (trigger) { document.querySelector(trigger.dataset.v125Trigger)?.click(); setTimeout(renderSessionPanel, 120); return; }
+      if (event.target.closest('[data-v125-session-refresh]')) { renderSessionPanel(); return; }
+    }, true);
+    document.addEventListener('input', event => {
+      const note = event.target.closest?.('#deckV125SessionSheet [data-v125-session-note]');
+      if (!note || !characterState) return;
+      characterState.notesSplit = { backstory:'', session:'', goals:'', npcs:'', treasure:'', rules:'', ...(characterState.notesSplit || {}) };
+      characterState.notesSplit.session = note.value;
+      saveCharacter();
+    }, true);
+  }
+  function cleanupDensityMenu(){
+    try {
+      if (localStorage.getItem(DENSITY_STORE) === 'comfort') localStorage.setItem(DENSITY_STORE, 'detail');
+    } catch(_){}
+    const wrap = document.getElementById('v112MobileTools');
+    if (!wrap) return;
+    wrap.querySelectorAll('[data-v112-density="comfort"]').forEach(btn => btn.remove());
+    wrap.querySelectorAll('.v112-tools-title').forEach(title => { if (/view density/i.test(title.textContent || '')) title.textContent = 'View Mode'; });
+    const grid = wrap.querySelector('.v112-tools-grid--three'); if (grid) grid.classList.remove('v112-tools-grid--three');
+    if (document.body.dataset.v112Density === 'comfort') document.body.dataset.v112Density = 'detail';
+  }
+  function applySessionPolish(){
+    cleanupDensityMenu();
+    renderSessionPanel();
+  }
+  const style = document.createElement('style');
+  style.id = 'deckV125Style';
+  style.textContent = `
+    #v112MobileTools [data-v112-density="comfort"]{display:none!important;}
+    body[data-v112-density="session"] #characterSheet .character-chapter-picker-v83,
+    body[data-v112-density="session"] #characterSheet .character-chapter-picker-v82{display:none!important;}
+    body[data-v112-density="session"] #characterSheet{margin-top:12px;}
+    .deck-v125-session-sheet{margin:0 0 14px;border:1px solid rgba(255,215,137,.20);border-radius:22px;background:linear-gradient(145deg,rgba(20,16,31,.96),rgba(7,12,23,.96));box-shadow:0 16px 38px rgba(0,0,0,.32),inset 0 1px 0 rgba(255,255,255,.06);padding:14px;color:#f8f1ff;display:grid;gap:12px;}
+    .deck-v125-session-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;}
+    .deck-v125-session-head h2{margin:0;color:#fff0c8;font-size:1.25rem;letter-spacing:.035em;}
+    .deck-v125-session-head p{margin:.25rem 0 0;color:rgba(238,232,255,.72);font-size:.86rem;line-height:1.35;}
+    .deck-v125-hero-row{display:grid;grid-template-columns:minmax(210px,1.45fr) repeat(5,minmax(92px,.75fr));gap:8px;}
+    .deck-v125-hero,.deck-v125-stat,.deck-v125-box{border:1px solid rgba(255,255,255,.11);border-radius:16px;background:rgba(255,255,255,.045);box-shadow:inset 0 1px 0 rgba(255,255,255,.045);}
+    .deck-v125-hero,.deck-v125-stat{padding:10px;min-height:68px;text-align:left;color:#fff;border-style:solid;}
+    button.deck-v125-stat{cursor:pointer;}
+    .deck-v125-hero span,.deck-v125-stat span{display:block;text-transform:uppercase;letter-spacing:.09em;font-size:.64rem;color:rgba(168,222,255,.80);font-weight:950;}
+    .deck-v125-hero strong,.deck-v125-stat strong{display:block;color:#fff0c8;font-size:1.22rem;line-height:1.12;margin-top:3px;}
+    .deck-v125-hero small{display:block;color:rgba(238,232,255,.68);margin-top:4px;font-weight:750;}
+    .deck-v125-stat.is-on{border-color:rgba(255,215,137,.42);background:rgba(255,215,137,.10);}
+    .deck-v125-session-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;}
+    .deck-v125-box{padding:12px;display:grid;gap:9px;align-content:start;}
+    .deck-v125-box h3{margin:0;color:#c9b7ff;font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;}
+    .deck-v125-box p{margin:0;color:rgba(239,232,255,.72);font-size:.82rem;line-height:1.35;}
+    .deck-v125-wide{grid-column:1/-1;}
+    .deck-v125-hp-main{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;}
+    .deck-v125-hp-main strong{font-size:2.1rem;color:#fff0c8;line-height:1;}
+    .deck-v125-hp-main span{font-weight:900;color:#efe8ff;}.deck-v125-hp-main em{font-style:normal;color:#92e9c6;font-weight:900;}
+    .deck-v125-actions{display:flex;flex-wrap:wrap;gap:6px;}
+    .deck-v125-actions button,.deck-v125-death button,.deck-v125-ability,.deck-v125-save,.deck-v125-skill{border:1px solid rgba(255,255,255,.13);background:rgba(255,255,255,.06);color:#f8f1ff;border-radius:12px;min-height:34px;padding:7px 9px;font-weight:900;cursor:pointer;}
+    .deck-v125-death{display:flex;gap:6px;align-items:center;flex-wrap:wrap;color:rgba(238,232,255,.72);font-size:.78rem;font-weight:900;}
+    .deck-v125-abilities,.deck-v125-saves,.deck-v125-skills{display:grid;grid-template-columns:repeat(auto-fit,minmax(88px,1fr));gap:6px;}
+    .deck-v125-ability,.deck-v125-save,.deck-v125-skill{text-align:left;display:grid;gap:2px;}
+    .deck-v125-ability span,.deck-v125-save span,.deck-v125-skill span{font-size:.64rem;color:rgba(168,222,255,.80);letter-spacing:.06em;text-transform:uppercase;}
+    .deck-v125-ability strong,.deck-v125-save strong,.deck-v125-skill strong{color:#fff0c8;font-size:1.05rem;}.deck-v125-ability em{font-style:normal;color:#e8ddff;font-weight:900;}
+    .deck-v125-spell-stats{display:flex;gap:8px;flex-wrap:wrap;}.deck-v125-spell-stats span{padding:6px 8px;border-radius:10px;background:rgba(0,0,0,.18);color:#d9d0ff;font-weight:900;}
+    .deck-v125-box textarea{width:100%;box-sizing:border-box;border:1px solid rgba(185,167,255,.18);border-radius:14px;background:rgba(0,0,0,.18);color:#fff;padding:10px;resize:vertical;min-height:86px;font:inherit;}
+    .deck-v125-log{display:grid;gap:4px;min-height:32px;color:rgba(238,232,255,.72);font-size:.8rem;}.deck-v125-log div{border-bottom:1px solid rgba(255,255,255,.06);padding-bottom:4px;}
+    .deck-v125-muted{color:rgba(238,232,255,.62);font-size:.82rem;}
+    @media(max-width:900px){.deck-v125-hero-row{grid-template-columns:1fr 1fr 1fr}.deck-v125-hero{grid-column:1/-1}.deck-v125-session-grid{grid-template-columns:1fr}.deck-v125-session-head{flex-direction:column}.deck-v125-session-sheet{border-radius:18px;padding:12px}.deck-v125-stat{min-height:62px}.deck-v125-hero-row{gap:7px}.deck-v125-hero strong,.deck-v125-stat strong{font-size:1.05rem}}
+    @media(max-width:520px){.deck-v125-hero-row{grid-template-columns:1fr 1fr}.deck-v125-actions button,.deck-v125-death button{flex:1 1 auto}.deck-v125-abilities,.deck-v125-saves,.deck-v125-skills{grid-template-columns:1fr 1fr}}
+  `;
+  document.head.appendChild(style);
+  bindSessionEvents();
+  function isSessionActive(){
+    const sheet = document.getElementById('characterSheet');
+    return !document.hidden && document.body?.dataset?.v112Density === 'session' && !!sheet && !sheet.classList.contains('hidden') && sheet.offsetParent !== null;
+  }
+  function scheduleSessionPolish(delay){
+    if (!isSessionActive()) return;
+    window.clearTimeout(scheduleSessionPolish.timer);
+    scheduleSessionPolish.timer = window.setTimeout(() => { if (isSessionActive()) applySessionPolish(); }, delay || 120);
+  }
+  function sessionRelevantEvent(event){
+    const target = event?.target;
+    return !!target?.closest?.('#characterSheet,#v112MobileTools,[data-v112-density="session"],[data-v125-session-refresh],[data-v125-trigger],[data-v125-hp],[data-v125-temp],[data-v125-death-s],[data-v125-death-f]');
+  }
+  function boot(){
+    try { if (localStorage.getItem(DENSITY_STORE) === 'comfort') localStorage.setItem(DENSITY_STORE, 'detail'); } catch(_){}
+    applySessionPolish();
+    document.addEventListener('click', (event) => { if (sessionRelevantEvent(event)) scheduleSessionPolish(120); }, true);
+    document.addEventListener('input', (event) => { if (sessionRelevantEvent(event)) scheduleSessionPolish(180); }, true);
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) scheduleSessionPolish(250); });
+    setInterval(() => { if (isSessionActive()) applySessionPolish(); }, 6000);
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
+})();
+
+
+/* ===== Deck of Many Brews v126: performance, battery, and compatibility polish ===== */
+(function(){
+  'use strict';
+  const V = 'v126';
+  window.HOMEBREW_COMPENDIUM_VERSION = V;
+  try { document.querySelector('meta[name="app-version"]')?.setAttribute('content', V); } catch(_) {}
+
+  function setHiddenState(){
+    try { document.body.classList.toggle('deck-v126-hidden', !!document.hidden); } catch(_) {}
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setHiddenState, { once:true });
+  } else {
+    setHiddenState();
+  }
+  document.addEventListener('visibilitychange', setHiddenState, { passive:true });
+
+  // Let any older patchers batch their page/menu refresh work behind one animation frame.
+  const pending = new Map();
+  window.deckV126Schedule = function deckV126Schedule(key, fn){
+    if (typeof fn !== 'function') return;
+    if (pending.has(key)) return;
+    const run = () => { pending.delete(key); try { fn(); } catch(error) { console.warn('[Deck v126]', key, error); } };
+    const raf = window.requestAnimationFrame || ((cb) => window.setTimeout(cb, 16));
+    pending.set(key, raf(run));
+  };
+
+  // Add a few safe passive listeners for system-level state only; existing app input behavior is untouched.
+  window.addEventListener('pageshow', () => setHiddenState(), { passive:true });
+  window.addEventListener('pagehide', () => { try { document.body.classList.add('deck-v126-hidden'); } catch(_) {} }, { passive:true });
+
+  const style = document.createElement('style');
+  style.id = 'deckV126PerformanceStyle';
+  style.textContent = `
+    /* Pause decorative motion while the app is hidden. This improves phone battery life without changing visible behavior. */
+    body.deck-v126-hidden *, body.deck-v126-hidden *::before, body.deck-v126-hidden *::after{animation-play-state:paused!important;transition-duration:0s!important;}
+
+    /* Respect OS reduced-motion / low-power preferences. */
+    @media (prefers-reduced-motion: reduce){
+      html:focus-within{scroll-behavior:auto!important;}
+      *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important;}
+    }
+
+    /* Rendering containment for large card lists; unsupported browsers simply ignore it. */
+    @supports (content-visibility:auto){
+      #spellCards > *, #gearCards > *, #weaponCards > *, #conditionCards > *,
+      #warTacticsPage .tactic-card, #warTacticsPage .path-slot,
+      .home-card, .panel.card, .deck-v125-box{
+        content-visibility:auto;
+        contain-intrinsic-size: 180px 260px;
+      }
+      #warTacticsPage .deck-v123-path-cards, #warTacticsPage .standalone-grid,
+      .table-scroll, .modal-card{contain:layout paint style;}
+    }
+
+    /* Keep expensive decorative overlays from receiving input or forcing hit-testing work. */
+    .card-particles,.particle-field,.sparkle-layer,.ambient-particles,[aria-hidden="true"].particles{pointer-events:none!important;}
+  `;
+  document.head.appendChild(style);
 })();
