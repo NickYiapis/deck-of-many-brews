@@ -1,8 +1,5 @@
-# Deck of Many Brews v135
+# Deck of Many Brews v136
 
-Upload these files to the root of the Cloudflare Pages-connected GitHub repository.
+Static PWA build. Upload all extracted files to the GitHub repo root and commit to main. Cloudflare Pages will deploy automatically.
 
-
-## v135
-- Synced app/runtime/service-worker/version metadata to v135 to stop repeated update prompts.
-- Renamed installed/home-screen app title to Deck of Many Brews in manifest and iOS metadata.
+Changes: fixed War Tactics filter actions, repaired mobile Stats & Skills skill-card layout, and moved Gear calculator/rules access into Upgrade Tools while removing Rules & Help from the mobile filter menu.
