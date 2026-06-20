@@ -1,7 +1,7 @@
 {
-  "version": "v129",
+  "version": "v130",
   "dataVersion": 1,
   "releasedAt": "2026-06-20T00:00:00+03:00",
   "updatePolicy": "prompt",
-  "notes": "Bug fixes for War Tactics mobile menu, dialogs, Gear/Spell rules actions, Character Creator skill layout/class progression, dedicated HP/Hit Dice rollers, and additional subclass spell grants."
+  "notes": "Fixes repeated update prompts by synchronizing the app runtime version, service worker cache version, and version.json metadata. No feature behavior changes."
 }

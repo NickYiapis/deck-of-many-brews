@@ -1,9 +1,5 @@
-# Deck of Many Brews v128 PWA
+# Deck of Many Brews v130 PWA
 
-Upload these files to the root of the GitHub repository connected to Cloudflare Pages.
+Version v130 fixes repeated update prompts by syncing app.js runtime version, service-worker cache version, and version.json. LocalStorage keys are preserved.
 
-Version v128 fixes mobile War Tactics filters/scrolling and rebuilds Class Progression into compact clickable class feature tabs. LocalStorage keys are preserved.
-
-
-## v128
-- Mobile Character Creator combines Stats and Skills into one Stats & Skills section.
+Upload all files in this folder to the repository root.

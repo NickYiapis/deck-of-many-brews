@@ -15698,7 +15698,7 @@ document.head.append(V81_STYLE);
 /* ===== PWA runtime: version checks, prompt-based updates, and data migrations ===== */
 (function() {
   'use strict';
-  const CURRENT_VERSION = 'v128';
+  const CURRENT_VERSION = 'v130';
   const DATA_VERSION = 1;
   const DATA_VERSION_KEY = 'homebrewCompendium.appDataVersion';
   window.HOMEBREW_COMPENDIUM_VERSION = CURRENT_VERSION;
@@ -16927,3 +16927,7 @@ document.head.append(V81_STYLE);
   document.addEventListener('change',e=>{if(e.target.closest?.('#characterSheet'))setTimeout(()=>{try{enhanceClassProgressionV129();}catch(_){}},0);},true);
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(boot,0));else setTimeout(boot,0);
 })();
+
+
+/* ===== Deck of Many Brews v130: update prompt version sync fix ===== */
+(function(){try{window.HOMEBREW_COMPENDIUM_VERSION='v130';}catch(_){}})();
