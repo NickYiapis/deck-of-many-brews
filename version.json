@@ -1,7 +1,7 @@
 {
-  "version": "v134",
+  "version": "v135",
   "dataVersion": 1,
   "releasedAt": "2026-06-20T00:00:00+03:00",
   "updatePolicy": "prompt",
-  "notes": "Cleans dedicated HP/Hit Dice roll windows and improves subclass spell auto-grants with broader subclass aliases and missing spell-list subclasses."
+  "notes": "Synchronizes the runtime, service-worker, version metadata, and install/home-screen app name to stop repeated update prompts and display Deck of Many Brews as the installed app name."
 }

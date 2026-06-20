@@ -15292,7 +15292,7 @@ document.head.append(V81_STYLE);
 /* ===== Deck of Many Brews v123: corrected War filters/cards + condition name colors ===== */
 (function(){
   'use strict';
-  const V = 'v126';
+  const V = 'v135';
   window.HOMEBREW_COMPENDIUM_VERSION = V;
   function h(value){ return typeof escapeHTML === 'function' ? escapeHTML(value) : String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
   function roman(value){ return Number(value) === 1 ? 'I' : Number(value) === 2 ? 'II' : 'III'; }
@@ -15532,7 +15532,7 @@ document.head.append(V81_STYLE);
 /* ===== Deck of Many Brews v124: mobile-only War menu/tier fixes + mobile character roller polish ===== */
 (function(){
   'use strict';
-  const V = 'v124';
+  const V = 'v135';
   window.HOMEBREW_COMPENDIUM_VERSION = V;
   const mq = typeof window.matchMedia === 'function' ? window.matchMedia('(max-width: 820px)') : { matches:false };
   const isMobile = () => !!mq.matches;
@@ -15700,7 +15700,7 @@ document.head.append(V81_STYLE);
 /* ===== PWA runtime: version checks, prompt-based updates, and data migrations ===== */
 (function() {
   'use strict';
-  const CURRENT_VERSION = 'v131';
+  const CURRENT_VERSION = 'v135';
   const DATA_VERSION = 1;
   const DATA_VERSION_KEY = 'homebrewCompendium.appDataVersion';
   window.HOMEBREW_COMPENDIUM_VERSION = CURRENT_VERSION;
@@ -15891,7 +15891,7 @@ document.head.append(V81_STYLE);
 /* ===== Deck of Many Brews v126: density cleanup, session sheet, bug polish ===== */
 (function(){
   'use strict';
-  const V = 'v126';
+  const V = 'v135';
   window.HOMEBREW_COMPENDIUM_VERSION = V;
   const DENSITY_STORE = 'hb-v112-density-mode';
   function isMobile(){ return window.matchMedia && window.matchMedia('(max-width: 820px)').matches; }
@@ -16134,7 +16134,7 @@ document.head.append(V81_STYLE);
 /* ===== Deck of Many Brews v126: performance, battery, and compatibility polish ===== */
 (function(){
   'use strict';
-  const V = 'v126';
+  const V = 'v135';
   window.HOMEBREW_COMPENDIUM_VERSION = V;
   try { document.querySelector('meta[name="app-version"]')?.setAttribute('content', V); } catch(_) {}
 
@@ -16195,7 +16195,7 @@ document.head.append(V81_STYLE);
 /* ===== Deck of Many Brews v128: War mobile filter correction + compact class progression tabs ===== */
 (function(){
   'use strict';
-  const V = 'v128';
+  const V = 'v135';
   window.HOMEBREW_COMPENDIUM_VERSION = V;
   const mq = typeof window.matchMedia === 'function' ? window.matchMedia('(max-width: 820px)') : { matches:false };
   const isMobile = () => !!mq.matches;
@@ -16932,14 +16932,14 @@ document.head.append(V81_STYLE);
 
 
 /* ===== Deck of Many Brews v130: update prompt version sync fix ===== */
-(function(){try{window.HOMEBREW_COMPENDIUM_VERSION='v131';}catch(_){}})();
+(function(){try{window.HOMEBREW_COMPENDIUM_VERSION='v135';}catch(_){}})();
 
 
 /* ===== Deck of Many Brews v131: definitive safe War mobile filter menu ===== */
 (function(){
   'use strict';
-  const V='v131';
-  try{window.HOMEBREW_COMPENDIUM_VERSION=V;document.querySelector('meta[name="app-version"]')?.setAttribute('content',V);}catch(_){}
+  const V='v135';
+  try{window.HOMEBREW_COMPENDIUM_VERSION=V;document.querySelector('meta[name="app-version"]')?.setAttribute('content',V);}catch(_){ }
   const mq = typeof matchMedia === 'function' ? matchMedia('(max-width: 820px)') : {matches:false};
   const isMobile = () => !!mq.matches;
   const esc = v => typeof escapeHTML === 'function' ? escapeHTML(v) : String(v ?? '').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -17043,7 +17043,7 @@ document.head.append(V81_STYLE);
 /* ===== Deck of Many Brews v132: War menu crash, skill card layout, gear calculator and info dialog polish ===== */
 (function(){
   'use strict';
-  const V='v133';
+  const V='v135';
   try{window.HOMEBREW_COMPENDIUM_VERSION=V;document.querySelector('meta[name="app-version"]')?.setAttribute('content',V);}catch(_){ }
   const mq = typeof matchMedia === 'function' ? matchMedia('(max-width: 820px)') : {matches:false};
   const isMobile = () => !!mq.matches;
@@ -17208,7 +17208,7 @@ document.head.append(V81_STYLE);
 /* ===== Deck of Many Brews v133: class progression mechanical detail and themed character notes ===== */
 (function(){
   'use strict';
-  const V='v133';
+  const V='v135';
   try{window.HOMEBREW_COMPENDIUM_VERSION=V;document.querySelector('meta[name="app-version"]')?.setAttribute('content',V);}catch(_){ }
   const esc=value=>typeof escapeHTML==='function'?escapeHTML(value):String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const norm=value=>String(value||'').toLowerCase().replace(/[^a-z0-9]+/g,'').trim();
@@ -17395,7 +17395,7 @@ document.head.append(V81_STYLE);
 /* ===== Deck of Many Brews v134: dedicated HP/Hit Dice trays + stronger subclass spell grants ===== */
 (function(){
   'use strict';
-  const VERSION='v134';
+  const VERSION='v135';
   try{window.HOMEBREW_COMPENDIUM_VERSION=VERSION;}catch(_){ }
   const norm=v=>String(v||'').toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g,'').replace(/[’]/g,"'").replace(/[^a-z0-9]+/g,' ').trim();
   const rows=(arr)=>(arr||[]).map(([level,unlock,spell])=>({level,unlock,spell}));
@@ -17488,4 +17488,16 @@ document.head.append(V81_STYLE);
   const mo=new MutationObserver(()=>cleanDedicatedRollTray());
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',()=>{mo.observe(document.documentElement,{childList:true,subtree:true,characterData:true}); cleanDedicatedRollTray();});
   else {mo.observe(document.documentElement,{childList:true,subtree:true,characterData:true}); setTimeout(cleanDedicatedRollTray,0);}
+})();
+
+
+/* ===== Deck of Many Brews v135: authoritative version sync / app-name polish ===== */
+(function(){
+  'use strict';
+  const V='v135';
+  try{
+    window.HOMEBREW_COMPENDIUM_VERSION=V;
+    document.querySelector('meta[name="app-version"]')?.setAttribute('content',V);
+    document.title='Deck of Many Brews v135';
+  }catch(_){}
 })();
