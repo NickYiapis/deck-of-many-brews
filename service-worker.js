@@ -1,5 +1,5 @@
-/* Deck of Many Brews service worker - safe refresh/offline cache */
-const APP_VERSION = 'v139';
+/* Deck of Many Brews service worker - v140 recovery / safer update cache */
+const APP_VERSION = 'v140';
 const CACHE_PREFIX = 'homebrew-compendium-';
 const CACHE_NAME = `${CACHE_PREFIX}${APP_VERSION}`;
 
@@ -22,7 +22,6 @@ self.addEventListener('install', event => {
         const response = await fetch(new Request(path, { cache: 'reload' }));
         if (response && response.ok) await cache.put(path, response.clone());
       } catch (error) {
-        // Do not fail installation because one optional shell file could not be cached.
         console.warn('[Deck of Many Brews] Cache warmup skipped:', path, error);
       }
     }));
@@ -53,27 +52,35 @@ async function putIfOk(cache, key, response) {
   return response;
 }
 
+async function cachedFallback(cache, key, request) {
+  return await cache.match(key, { ignoreSearch: true }) || await cache.match(request, { ignoreSearch: true }) || null;
+}
+
 async function cachedIndex(cache) {
-  return (
-    await cache.match('/index.html') ||
-    await cache.match('/') ||
-    await cache.match('./index.html') ||
-    await cache.match('./') ||
-    null
-  );
+  return await cache.match('/index.html') || await cache.match('/') || null;
+}
+
+async function networkFirst(request, cacheKey = request) {
+  const cache = await caches.open(CACHE_NAME);
+  try {
+    const response = await fetch(new Request(request, { cache: 'reload' }));
+    return await putIfOk(cache, cacheKey, response);
+  } catch (error) {
+    const cached = await cachedFallback(cache, cacheKey, request);
+    if (cached) return cached;
+    throw error;
+  }
 }
 
 async function navigationHandler(request) {
   const cache = await caches.open(CACHE_NAME);
   try {
-    const response = await fetch(request);
+    const response = await fetch(new Request(request, { cache: 'reload' }));
     if (response && response.ok) {
       await cache.put('/index.html', response.clone());
       return response;
     }
-  } catch (error) {
-    // Fall through to offline cache.
-  }
+  } catch (error) {}
 
   const fallback = await cachedIndex(cache);
   if (fallback) return fallback;
@@ -84,30 +91,9 @@ async function navigationHandler(request) {
   });
 }
 
-async function networkFirst(request, cacheKey = request) {
-  const cache = await caches.open(CACHE_NAME);
-  try {
-    const response = await fetch(request);
-    return putIfOk(cache, cacheKey, response);
-  } catch (error) {
-    const cached = await cache.match(cacheKey, { ignoreSearch: true }) || await cache.match(request, { ignoreSearch: true });
-    if (cached) return cached;
-    throw error;
-  }
-}
-
-
-async function cacheFirst(request, cacheKey = request) {
-  const cache = await caches.open(CACHE_NAME);
-  const cached = await cache.match(cacheKey, { ignoreSearch: true }) || await cache.match(request, { ignoreSearch: true });
-  if (cached) return cached;
-  const response = await fetch(request);
-  return putIfOk(cache, cacheKey, response);
-}
-
 async function staleWhileRevalidate(request, cacheKey = request) {
   const cache = await caches.open(CACHE_NAME);
-  const cached = await cache.match(cacheKey, { ignoreSearch: true }) || await cache.match(request, { ignoreSearch: true });
+  const cached = await cachedFallback(cache, cacheKey, request);
   const fetchPromise = fetch(request)
     .then(response => putIfOk(cache, cacheKey, response))
     .catch(() => null);
@@ -117,8 +103,7 @@ async function staleWhileRevalidate(request, cacheKey = request) {
 function shellCacheKey(url) {
   const pathname = url.pathname;
   if (pathname === '/' || pathname.endsWith('/')) return '/index.html';
-  const shell = APP_SHELL.find(path => pathname === path);
-  return shell || null;
+  return APP_SHELL.find(path => pathname === path) || null;
 }
 
 self.addEventListener('fetch', event => {
@@ -139,11 +124,13 @@ self.addEventListener('fetch', event => {
 
   const shellKey = shellCacheKey(url);
   if (shellKey) {
-    event.respondWith(cacheFirst(request, shellKey));
+    // Recovery behavior: shell files are network-first so a broken cached app.js/index.html
+    // cannot trap users after a new deployment. Cached copies still support offline use.
+    event.respondWith(networkFirst(request, shellKey));
     return;
   }
 
-  event.respondWith(networkFirst(request));
+  event.respondWith(staleWhileRevalidate(request));
 });
 
 self.addEventListener('message', event => {

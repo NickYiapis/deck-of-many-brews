@@ -1,4 +1,4 @@
-# Deck of Many Brews v139 — Stability Rollback
+# Deck of Many Brews v140 — Stability Rollback
 
 This build restores the last stable v137 runtime after v138 caused the app/page to stop working.
 
@@ -12,7 +12,7 @@ This build restores the last stable v137 runtime after v138 caused the app/page 
 - icons/
 
 ## Notes
-- Version synced to v139 in app runtime, HTML meta, version.json, and service worker cache.
+- Version synced to v140 in app runtime, HTML meta, version.json, and service worker cache.
 - localStorage data compatibility is preserved.
 - v138 background/class-progression changes are intentionally not included because the page broke.
 
