@@ -6,8 +6,26 @@
 <meta content="width=device-width, initial-scale=1, viewport-fit=cover" name="viewport"/>
 <meta content="#151824" name="theme-color"/>
 <meta content="Single-file Homebrew Compendium for D&amp;D campaign rules, tactics, spells, gear, weapons, conditions, and character creation." name="description"/>
-<title>Deck of Many Brews v140</title>
-<meta content="Deck of Many Brews" name="application-name"/><meta content="yes" name="mobile-web-app-capable"/><meta content="yes" name="apple-mobile-web-app-capable"/><meta content="Deck of Many Brews" name="apple-mobile-web-app-title"/><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/><meta content="telephone=no" name="format-detection"/><link href="manifest.webmanifest" rel="manifest"/><link href="icons/icon-192.png" rel="icon" sizes="192x192" type="image/png"/><link href="icons/icon-192.png" rel="apple-touch-icon" sizes="192x192"/><link href="app.css" rel="stylesheet"/><meta content="v140" name="app-version"/></head>
+<title>Deck of Many Brews v141</title>
+<meta content="Deck of Many Brews" name="application-name"/><meta content="yes" name="mobile-web-app-capable"/><meta content="yes" name="apple-mobile-web-app-capable"/><meta content="Deck of Many Brews" name="apple-mobile-web-app-title"/><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/><meta content="telephone=no" name="format-detection"/><link href="manifest.webmanifest" rel="manifest"/><link href="icons/icon-192.png" rel="icon" sizes="192x192" type="image/png"/><link href="icons/icon-192.png" rel="apple-touch-icon" sizes="192x192"/><script>
+(function(){
+  var VERSION = 'v141';
+  var FLAG = 'deckOfManyBrews.swRecovery.' + VERSION;
+  try {
+    document.documentElement.setAttribute('data-recovery-version', VERSION);
+    if ('serviceWorker' in navigator && !localStorage.getItem(FLAG) && !/[?&]recovered=v141\b/.test(location.search)) {
+      localStorage.setItem(FLAG, '1');
+      Promise.all([
+        navigator.serviceWorker.getRegistrations().then(function(regs){ return Promise.all(regs.map(function(reg){ return reg.unregister().catch(function(){}); })); }).catch(function(){}),
+        (window.caches ? caches.keys().then(function(keys){ return Promise.all(keys.filter(function(k){ return /^homebrew-compendium-/.test(k); }).map(function(k){ return caches.delete(k); })); }).catch(function(){}) : Promise.resolve())
+      ]).then(function(){
+        var sep = location.search ? '&' : '?';
+        location.replace(location.pathname + location.search + sep + 'recovered=v141' + location.hash);
+      }).catch(function(){});
+    }
+  } catch (e) {}
+})();
+</script><link href="app.css" rel="stylesheet"/><meta content="v141" name="app-version"/></head>
 <body>
 <div class="app-shell">
 <header class="hero">
@@ -834,5 +852,24 @@
 <!-- V117 recovery: V114 Character Creator table-use polish, dice bottom sheet/history/settings, mobile low-power compact mode (live placement, body observer removed) -->
 <!-- V120 stable mobile filter recovery: War tier filters, Conditions names-only menu, Gear mobile filter structure -->
 <!-- V121 QA stability polish: scoped mobile menu overrides, no full-page observers -->
-<script src="app.js"></script></body>
+<script src="app.js"></script><script>
+(function(){
+  function rescue(){
+    try{
+      var pages = document.querySelectorAll('.site-page');
+      var active = document.querySelector('.site-page.is-active');
+      var homeMenu = document.querySelector('.master-menu--home');
+      if (!active && homeMenu) {
+        document.body.classList.add('is-home-page');
+        document.body.setAttribute('data-page','home');
+        homeMenu.style.display = '';
+        var title = document.getElementById('pageTitle');
+        if (title) title.textContent = 'Deck of Many Brews';
+      }
+      document.documentElement.classList.add('deck-recovery-watchdog-ran');
+    }catch(e){console.error('Deck recovery watchdog failed',e);}
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function(){ setTimeout(rescue, 2500); }); else setTimeout(rescue, 2500);
+})();
+</script></body>
 </html>

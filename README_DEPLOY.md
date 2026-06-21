@@ -1,20 +1,5 @@
-# Deck of Many Brews v140 — Stability Rollback
+# Deck of Many Brews v141 Recovery
 
-This build restores the last stable v137 runtime after v138 caused the app/page to stop working.
+Emergency loading recovery build. Upload all files in this ZIP to the repository root.
 
-## Contents
-- index.html
-- app.css
-- app.js
-- manifest.webmanifest
-- service-worker.js
-- version.json
-- icons/
-
-## Notes
-- Version synced to v140 in app runtime, HTML meta, version.json, and service worker cache.
-- localStorage data compatibility is preserved.
-- v138 background/class-progression changes are intentionally not included because the page broke.
-
-## Deploy
-Upload the extracted contents to the GitHub repository root and commit to main. Cloudflare Pages will deploy automatically.
+This build clears stale PWA caches once, unregisters older broken service workers once, then lets the app register the new network-first service worker. It preserves localStorage data.

@@ -1,7 +1,7 @@
 {
-  "version": "v140",
+  "version": "v141",
   "dataVersion": 1,
   "releasedAt": "2026-06-21T00:00:00+03:00",
-  "updatePolicy": "prompt",
-  "notes": "Emergency recovery build: keeps the stabilized v139 runtime, syncs versions to v140, and changes service-worker shell files to network-first so broken cached files are not kept alive after deployment."
+  "updatePolicy": "recovery",
+  "notes": "Emergency loading recovery: clears stale service-worker caches once, serves core shell network-first, and prevents broken cached app files from trapping users."
 }

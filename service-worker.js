@@ -1,29 +1,25 @@
-/* Deck of Many Brews service worker - v140 recovery / safer update cache */
-const APP_VERSION = 'v140';
+/* Deck of Many Brews service worker - v141 emergency loading recovery */
+const APP_VERSION = 'v141';
 const CACHE_PREFIX = 'homebrew-compendium-';
 const CACHE_NAME = `${CACHE_PREFIX}${APP_VERSION}`;
-
 const APP_SHELL = [
-  '/',
-  '/index.html',
-  '/app.css',
-  '/app.js',
-  '/manifest.webmanifest',
-  '/version.json',
-  '/icons/icon-192.png',
-  '/icons/icon-512.png'
+  './', './index.html', './app.css', './app.js', './manifest.webmanifest', './version.json', './icons/icon-192.png', './icons/icon-512.png'
 ];
+
+async function deleteOldCaches() {
+  const names = await caches.keys();
+  await Promise.all(names.map(name => name.startsWith(CACHE_PREFIX) && name !== CACHE_NAME ? caches.delete(name) : Promise.resolve(false)));
+}
 
 self.addEventListener('install', event => {
   event.waitUntil((async () => {
+    await deleteOldCaches();
     const cache = await caches.open(CACHE_NAME);
     await Promise.all(APP_SHELL.map(async path => {
       try {
         const response = await fetch(new Request(path, { cache: 'reload' }));
         if (response && response.ok) await cache.put(path, response.clone());
-      } catch (error) {
-        console.warn('[Deck of Many Brews] Cache warmup skipped:', path, error);
-      }
+      } catch (_) {}
     }));
     await self.skipWaiting();
   })());
@@ -31,106 +27,55 @@ self.addEventListener('install', event => {
 
 self.addEventListener('activate', event => {
   event.waitUntil((async () => {
-    const names = await caches.keys();
-    await Promise.all(names.map(name => {
-      if (name.startsWith(CACHE_PREFIX) && name !== CACHE_NAME) return caches.delete(name);
-      return Promise.resolve(false);
-    }));
+    await deleteOldCaches();
     await self.clients.claim();
   })());
 });
 
 function sameOrigin(request) {
-  try { return new URL(request.url).origin === self.location.origin; }
-  catch { return false; }
+  try { return new URL(request.url).origin === self.location.origin; } catch (_) { return false; }
 }
-
-async function putIfOk(cache, key, response) {
-  if (response && response.ok) {
-    try { await cache.put(key, response.clone()); } catch {}
-  }
-  return response;
+function normalizedKey(url) {
+  const p = url.pathname.replace(/^\/+/, './');
+  if (url.pathname === '/' || url.pathname.endsWith('/')) return './index.html';
+  if (p === './index.html' || p === './app.css' || p === './app.js' || p === './manifest.webmanifest' || p === './version.json' || p === './icons/icon-192.png' || p === './icons/icon-512.png') return p;
+  return null;
 }
-
-async function cachedFallback(cache, key, request) {
-  return await cache.match(key, { ignoreSearch: true }) || await cache.match(request, { ignoreSearch: true }) || null;
-}
-
-async function cachedIndex(cache) {
-  return await cache.match('/index.html') || await cache.match('/') || null;
-}
-
-async function networkFirst(request, cacheKey = request) {
+async function networkFirst(request, key) {
   const cache = await caches.open(CACHE_NAME);
   try {
     const response = await fetch(new Request(request, { cache: 'reload' }));
-    return await putIfOk(cache, cacheKey, response);
+    if (response && response.ok && key) await cache.put(key, response.clone());
+    return response;
   } catch (error) {
-    const cached = await cachedFallback(cache, cacheKey, request);
+    const cached = key ? await cache.match(key, { ignoreSearch: true }) : await cache.match(request, { ignoreSearch: true });
     if (cached) return cached;
+    if (request.mode === 'navigate') {
+      const fallback = await cache.match('./index.html', { ignoreSearch: true }) || await cache.match('./', { ignoreSearch: true });
+      if (fallback) return fallback;
+      return new Response('<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Deck of Many Brews Recovery</title><body style="font-family:system-ui;background:#0e1018;color:#f4efe4;padding:2rem"><h1>Deck of Many Brews</h1><p>The app could not load. Reopen once while online.</p></body>', {headers:{'Content-Type':'text/html; charset=utf-8'}});
+    }
     throw error;
   }
-}
-
-async function navigationHandler(request) {
-  const cache = await caches.open(CACHE_NAME);
-  try {
-    const response = await fetch(new Request(request, { cache: 'reload' }));
-    if (response && response.ok) {
-      await cache.put('/index.html', response.clone());
-      return response;
-    }
-  } catch (error) {}
-
-  const fallback = await cachedIndex(cache);
-  if (fallback) return fallback;
-
-  return new Response(`<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Deck of Many Brews Offline</title></head><body style="font-family:system-ui;background:#0e1018;color:#f4efe4;padding:2rem"><h1>Deck of Many Brews</h1><p>The app could not load from the network and no offline copy is cached yet. Reopen it once while online.</p></body></html>`, {
-    status: 200,
-    headers: { 'Content-Type': 'text/html; charset=utf-8' }
-  });
-}
-
-async function staleWhileRevalidate(request, cacheKey = request) {
-  const cache = await caches.open(CACHE_NAME);
-  const cached = await cachedFallback(cache, cacheKey, request);
-  const fetchPromise = fetch(request)
-    .then(response => putIfOk(cache, cacheKey, response))
-    .catch(() => null);
-  return cached || fetchPromise || fetch(request);
-}
-
-function shellCacheKey(url) {
-  const pathname = url.pathname;
-  if (pathname === '/' || pathname.endsWith('/')) return '/index.html';
-  return APP_SHELL.find(path => pathname === path) || null;
 }
 
 self.addEventListener('fetch', event => {
   const request = event.request;
   if (request.method !== 'GET' || !sameOrigin(request)) return;
-
   const url = new URL(request.url);
-
   if (request.mode === 'navigate') {
-    event.respondWith(navigationHandler(request));
+    event.respondWith(networkFirst(request, './index.html'));
     return;
   }
-
-  if (url.pathname.endsWith('/version.json')) {
-    event.respondWith(networkFirst(request, '/version.json'));
+  const key = normalizedKey(url);
+  if (key || url.pathname.endsWith('/version.json')) {
+    event.respondWith(networkFirst(request, key || './version.json'));
     return;
   }
-
-  const shellKey = shellCacheKey(url);
-  if (shellKey) {
-    // Recovery behavior: shell files are network-first so a broken cached app.js/index.html
-    // cannot trap users after a new deployment. Cached copies still support offline use.
-    event.respondWith(networkFirst(request, shellKey));
-    return;
-  }
-
-  event.respondWith(staleWhileRevalidate(request));
+  event.respondWith(fetch(request).catch(async () => {
+    const cache = await caches.open(CACHE_NAME);
+    return await cache.match(request, {ignoreSearch:true}) || Response.error();
+  }));
 });
 
 self.addEventListener('message', event => {
@@ -142,20 +87,19 @@ self.addEventListener('message', event => {
     event.waitUntil((async () => {
       let ok = true;
       try {
+        await deleteOldCaches();
         const cache = await caches.open(CACHE_NAME);
         await Promise.all(APP_SHELL.map(async path => {
           try {
             const response = await fetch(new Request(path, { cache: 'reload' }));
-            if (response && response.ok) await cache.put(path, response.clone());
-            else ok = false;
-          } catch (error) {
-            ok = false;
-          }
+            if (response && response.ok) await cache.put(path, response.clone()); else ok = false;
+          } catch (_) { ok = false; }
         }));
-      } catch (error) {
-        ok = false;
-      }
+      } catch (_) { ok = false; }
       if (event.ports && event.ports[0]) event.ports[0].postMessage({ ok });
     })());
+  }
+  if (event.data?.type === 'CLEAR_OLD_CACHES') {
+    event.waitUntil(deleteOldCaches());
   }
 });
