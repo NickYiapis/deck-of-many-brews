@@ -1,12 +1,20 @@
-# Deck of Many Brews v136
+# Deck of Many Brews v139 — Stability Rollback
 
-Static PWA build. Upload all extracted files to the GitHub repo root and commit to main. Cloudflare Pages will deploy automatically.
+This build restores the last stable v137 runtime after v138 caused the app/page to stop working.
 
-Changes: fixed War Tactics filter actions, repaired mobile Stats & Skills skill-card layout, and moved Gear calculator/rules access into Upgrade Tools while removing Rules & Help from the mobile filter menu.
+## Contents
+- index.html
+- app.css
+- app.js
+- manifest.webmanifest
+- service-worker.js
+- version.json
+- icons/
 
+## Notes
+- Version synced to v139 in app runtime, HTML meta, version.json, and service worker cache.
+- localStorage data compatibility is preserved.
+- v138 background/class-progression changes are intentionally not included because the page broke.
 
-## v138
-- Simplified species/race/background info dialogs.
-- Removed source-book cards and summary/helper blocks from those dialogs.
-- Improved dropdown/dialog containment on small screens.
-- Expanded Class Progression mechanical explanations and added More dialogs for complex feature groups.
+## Deploy
+Upload the extracted contents to the GitHub repository root and commit to main. Cloudflare Pages will deploy automatically.
