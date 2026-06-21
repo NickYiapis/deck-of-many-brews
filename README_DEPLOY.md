@@ -1,5 +1,5 @@
-# Deck of Many Brews v141 Recovery
+# Deck of Many Brews v136
 
-Emergency loading recovery build. Upload all files in this ZIP to the repository root.
+Static PWA build. Upload all extracted files to the GitHub repo root and commit to main. Cloudflare Pages will deploy automatically.
 
-This build clears stale PWA caches once, unregisters older broken service workers once, then lets the app register the new network-first service worker. It preserves localStorage data.
+Changes: fixed War Tactics filter actions, repaired mobile Stats & Skills skill-card layout, and moved Gear calculator/rules access into Upgrade Tools while removing Rules & Help from the mobile filter menu.

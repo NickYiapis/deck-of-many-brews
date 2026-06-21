@@ -1,7 +1,7 @@
 {
-  "version": "v141",
+  "version": "v137",
   "dataVersion": 1,
-  "releasedAt": "2026-06-21T00:00:00+03:00",
-  "updatePolicy": "recovery",
-  "notes": "Emergency loading recovery: clears stale service-worker caches once, serves core shell network-first, and prevents broken cached app files from trapping users."
+  "releasedAt": "2026-06-20T00:00:00+03:00",
+  "updatePolicy": "prompt",
+  "notes": "Current-version stabilization: prevents War Tactics mobile menu breakage, guards War filter state, repairs mobile Stats & Skills skill card layout, and improves current dialog/calculator containment without adding new feature requests."
 }
