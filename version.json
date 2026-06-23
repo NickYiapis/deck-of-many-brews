@@ -1,7 +1,7 @@
 {
-  "version": "v142",
-  "dataVersion": 1,
-  "releasedAt": "2026-06-21T00:00:00+03:00",
-  "updatePolicy": "prompt",
-  "notes": "Stable rollback build from the last known working v135 runtime. No feature changes; syncs versions and uses safer network-first service-worker handling for core app files."
+  "name": "Deck of Many Brews",
+  "version": "v162",
+  "build": "stability-recovery",
+  "date": "2026-06-23",
+  "base": "v161 performance recovery single-file backup"
 }
