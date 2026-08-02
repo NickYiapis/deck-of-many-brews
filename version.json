@@ -1,7 +1,0 @@
-{
-  "name": "Deck of Many Brews",
-  "version": "v162",
-  "build": "stability-recovery",
-  "date": "2026-06-23",
-  "base": "v161 performance recovery single-file backup"
-}
