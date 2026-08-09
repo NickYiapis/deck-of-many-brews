@@ -1,7 +1,7 @@
 {
   "id": "./",
   "name": "Deck of Many Brews",
-  "short_name": "Many Brews",
+  "short_name": "Deck of Many Brews",
   "description": "A mobile D&D companion for characters, sessions, spells, tactics, gear, weapons, and conditions.",
   "start_url": "./index.html",
   "scope": "./",
