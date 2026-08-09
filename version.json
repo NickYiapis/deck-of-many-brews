@@ -1,0 +1,9 @@
+{
+  "app": "Deck of Many Brews",
+  "version": "v320",
+  "release": "v320-arcane-edition",
+  "dataVersion": 2,
+  "source": "deck-v320-arcane-edition.html",
+  "standalone": "deck_of_many_brews_v320_arcane_edition_complete_single_file.html",
+  "releasedAt": "2026-08-09T00:00:00+03:00"
+}

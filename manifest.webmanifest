@@ -1,0 +1,12 @@
+{
+  "id": "./",
+  "name": "Deck of Many Brews",
+  "short_name": "Many Brews",
+  "description": "A mobile D&D companion for characters, sessions, spells, tactics, gear, weapons, and conditions.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#090b12",
+  "theme_color": "#090b12",
+  "orientation": "any"
+}
