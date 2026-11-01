@@ -1,9 +1,9 @@
 // Reconstructed packaging companion: original v351 worker was not supplied intact.
-const CACHE='deck-of-many-brews-v491';
-const PRECACHE=['./index.html','./manifest.webmanifest','./asset-list.json'];
+const CACHE='deck-of-many-brews-v492';
+const PRECACHE=['./index.html','./manifest.webmanifest','./asset-list.json','./icons/deck-of-many-brews-icon-192.png','./icons/deck-of-many-brews-icon-512.png'];
 const ENTRY_POINTS=new Set([
   'index.html',
-  'deck-v491-arcane-edition.html'
+  'deck-v492-arcane-edition.html'
 ]);
 const DECK_CACHE=/^deck-of-many-brews-v\d+$/;
 let artworkJob=null,artworkList=null;
