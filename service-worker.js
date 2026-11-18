@@ -1,73 +1,38 @@
-// Reconstructed packaging companion: original v351 worker was not supplied intact.
-const CACHE='deck-of-many-brews-v491';
-const PRECACHE=['./index.html','./manifest.webmanifest','./asset-list.json'];
-const ENTRY_POINTS=new Set([
-  'index.html',
-  'deck-v491-arcane-edition.html'
-]);
-const DECK_CACHE=/^deck-of-many-brews-v\d+$/;
-let artworkJob=null,artworkList=null;
-
-async function knownArtwork(cache){
-  if(!artworkList){
-    const request=new URL('./asset-list.json',self.registration.scope).href;
-    const response=await cache.match(request)||await fetch(request);
-    artworkList=(await response.json()).map(path=>new URL(path,self.registration.scope).href);
-  }
-  return artworkList;
+'use strict';
+// Hosting bundle v520-r1. Scope-specific ownership excludes saved records and AI caches.
+const RELEASE='v520-r1';
+const ROOT=self.registration.scope;
+const PREFIX='deck-hosted:'+ROOT+':';
+const CACHE=PREFIX+RELEASE;
+const FILES=['./index.html','./manifest.webmanifest','./version.json','./icons/icon-192.png','./icons/icon-512.png'];
+const urls=FILES.map(path=>new URL(path,ROOT).href);
+async function refresh(){
+ const responses=await Promise.all(urls.map(async url=>{const response=await fetch(new Request(url,{cache:'reload',credentials:'same-origin'}));if(!response.ok||response.type==='opaque')throw Error('Required offline file unavailable');return response;}));
+ const cache=await caches.open(CACHE);
+ await Promise.all(responses.map((response,i)=>cache.put(urls[i],response)));
 }
-async function cacheArtwork(priority=[],remaining=true){
-  const cache=await caches.open(CACHE),known=await knownArtwork(cache);
-  const first=priority.filter(url=>known.includes(url));
-  async function save(url){
-    if(await cache.match(url))return;
-    try{const response=await fetch(url);if(response.ok)await cache.put(url,response)}catch(_){}
-  }
-  await Promise.all(first.map(save));
-  if(!remaining)return;
-  if(artworkJob)return artworkJob;
-  // A bounded background pass, never an additional install barrier.
-  artworkJob=(async()=>{for(const url of known)if(!first.includes(url))await save(url)})();
-  try{await artworkJob}finally{artworkJob=null}
-}
-
-async function cacheRelease(){
-  const cache=await caches.open(CACHE);
-  await cache.addAll(PRECACHE.map(url=>new Request(url,{cache:'reload'})));
-}
-async function removeObsoleteDeckCaches(){
-  const names=await caches.keys();
-  await Promise.all(names.filter(name=>name!==CACHE&&DECK_CACHE.test(name)).map(name=>caches.delete(name)));
-}
-function entryName(url,base){
-  if(url.origin!==base.origin||!url.pathname.startsWith(base.pathname))return'';
-  const relative=url.pathname.slice(base.pathname.length).replace(/^\/+|\/+$/g,'');
-  return relative||'index.html';
-}
-
-self.addEventListener('install',event=>event.waitUntil(cacheRelease()));
-// Activation follows the existing user-approved update flow (or waits until
-// old clients close). Cleanup is limited to known versioned Deck caches.
-self.addEventListener('activate',event=>event.waitUntil(removeObsoleteDeckCaches().then(()=>self.clients.claim())));
+self.addEventListener('install',event=>{event.waitUntil(refresh());});
+// Wait for the app's existing update confirmation before replacing an active worker.
+self.addEventListener('activate',event=>{event.waitUntil((async()=>{
+ for(const key of await caches.keys())if(key.startsWith(PREFIX)&&key!==CACHE)await caches.delete(key);
+ await self.clients.claim();
+})());});
 self.addEventListener('message',event=>{
-  if(event.data?.type==='CACHE_ARTWORK'){event.waitUntil(cacheArtwork(Array.isArray(event.data.priority)?event.data.priority:[],event.data.remaining!==false).catch(()=>{}));return;}
-  if(event.data?.type==='SKIP_WAITING'){event.waitUntil(self.skipWaiting());return;}
-  if(event.data?.type==='CACHE_LATEST')event.waitUntil(cacheRelease().then(()=>event.ports[0]?.postMessage({ok:true}),()=>event.ports[0]?.postMessage({ok:false})));
+ if(event.data?.type==='SKIP_WAITING'){event.waitUntil(self.skipWaiting());return;}
+ if(event.data?.type==='CACHE_LATEST')event.waitUntil(refresh().then(()=>event.ports[0]?.postMessage({ok:true})).catch(()=>event.ports[0]?.postMessage({ok:false})));
+ // CACHE_ARTWORK contains data URIs in this distribution; all artwork is in index.html.
 });
 self.addEventListener('fetch',event=>{
-  const url=new URL(event.request.url),base=new URL(self.registration.scope),name=entryName(url,base);
-  if(event.request.method!=='GET'||!name)return;
-  if(name==='version.json'||name==='service-worker.js')return;
-  event.respondWith((async()=>{
-    const cache=await caches.open(CACHE);
-    if(ENTRY_POINTS.has(name)){
-      const shell=await cache.match(new URL('./index.html',base).href,{ignoreSearch:true});
-      if(shell)return shell;
-    }
-    const cached=await cache.match(event.request,{ignoreSearch:true});
-    if(cached)return cached;
-    const response=await fetch(event.request);
-    if(name.startsWith('assets/')&&response.ok)await cache.put(event.request,response.clone());
-    return response;
-  })());
+ const request=event.request,url=new URL(request.url);
+ if(request.method!=='GET'||url.origin!==self.location.origin||!url.href.startsWith(ROOT))return;
+ const plain=new URL(url);plain.search='';plain.hash='';
+ if(plain.href===new URL('./version.json',ROOT).href){
+  event.respondWith(fetch(request).catch(async()=>{const cache=await caches.open(CACHE);return await cache.match(plain.href)||Response.error();}));return;
+ }
+ const root=new URL(ROOT);
+ const isEntry=plain.pathname===root.pathname||plain.href===new URL('./index.html',ROOT).href;
+ const key=isEntry?new URL('./index.html',ROOT).href:plain.href;
+ if(plain.href.startsWith(new URL('./ai/',ROOT).href)){event.respondWith((async()=>{const cache=await caches.open('deck-ai-runtime-v520:'+ROOT);const hit=await cache.match(plain.href);if(hit)return hit;const response=await fetch(request);if(response.ok)await cache.put(plain.href,response.clone());return response;})());return;}
+ if(!isEntry&&!urls.includes(key))return;
+ event.respondWith((async()=>{const cache=await caches.open(CACHE);const hit=await cache.match(key);return hit||fetch(request);})());
 });

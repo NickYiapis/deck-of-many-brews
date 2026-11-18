@@ -1,0 +1,2 @@
+Deck of Many Brews v520 — GitHub Pages upload
+Upload every file preserving folders using Git/GitHub Desktop. This ZIP exceeds GitHub browser-upload limits; extract it rather than uploading the ZIP as a website. No backend is needed. Normal search and artwork are embedded for standalone offline use. Optional Gemma0.27B search needs explicit model loading, HTTPS/localhost, WebAssembly SIMD and sufficient memory/storage. No WebGPU dependency, Q&A or online research. See ai/SETUP.md. Phone/browser performance remains unverified.

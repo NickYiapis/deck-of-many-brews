@@ -1,0 +1,10 @@
+# Optional Gemma search — v520
+Open Search → AI setup → Download / load Gemma, then enable AI-assisted search. No model downloads on startup or on toggle alone. Approximately 217 MB model/tokenizer/catalogue vectors, plus approximately 16 MB runtime files. HTTPS/localhost, WebAssembly SIMD and sufficient memory/storage are required. First installation needs internet; cached assets can be reused offline while browser storage is retained. Stop unloads memory. Remove deletes only this app path’s Gemma and runtime cache; saved records and other app caches are preserved. Legacy WebLLM caches are not globally deleted.
+
+Only search text is encoded locally. Documents/vectors contain shipped public catalogue facts, not characters. Scopes/filters remain application-owned and apply to the same edition variant. Candidate IDs, editions and source fingerprints are validated. Edited/deleted source entries do not reuse stale embeddings; new or edited entries remain discoverable with ordinary search until vectors are rebuilt. There are no generated answers, online research, Qwen, reranking or provider credentials.
+
+The WASM runtime was executed under Node and compared with native ONNX; controller/compiled-app/cache tests are separate. Chromium cannot launch in this environment; real browser interaction, Safari and physical Android/iPhone performance remain unverified. Phone memory needs may exceed the native benchmark. A load failure visibly retains ordinary search.
+
+Search may try up to3 locally prepared interpretations; most use one. Multiple encodings increase latency without changing model size. Related suggestion labels express uncertainty. Browser/phone tests remain outstanding; actual Node/WASM worker evidence is separate.
+
+The v520 corpus contains 3,362 documents. Changed/new and previously stale documents have refreshed embeddings; unchanged valid vectors retain their recorded provenance. The model and query prompt are unchanged. Build-time native document encoding disables telemetry before runtime initialization and is compared with the production WASM engine.
